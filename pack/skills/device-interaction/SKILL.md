@@ -118,7 +118,13 @@ Do **not** use raw `$ADB exec-out screencap` for checkpoints - it skips the shri
 
 ```bash
 # Screenshot checkpoint (shrunk) - prefer helper
-export RESOURCES="./.tapwright-run/resources"    # /test sets this to the run folder
+# Run once per non-E2E request. Preserve /test's spec run folder when provided.
+if [[ -z "${RESOURCES:-}" ]]; then
+  if [[ -z "${TAPWRIGHT_RUN_DIR:-}" ]]; then
+    export TAPWRIGHT_RUN_DIR="$(pack/scripts/new-run-dir.sh run)"
+  fi
+  export RESOURCES="$TAPWRIGHT_RUN_DIR/resources"
+fi
 source pack/scripts/adb-helpers.sh
 export SERIAL=emulator-5554
 screenshot "$RESOURCES/checkpoint-post-login.png"

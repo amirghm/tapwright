@@ -44,7 +44,7 @@ Infer the mode from the request:
 | `manual` | Guided one-step UI testing |
 | `test` | Execute `test-plan.md` with `/test` semantics |
 | `debug` | Collect dump, screenshot, app/device state, optional logs |
-| `record` | Execute and save provisional DSL under `.tapwright-run/` |
+| `record` | Execute and save provisional DSL in a timestamped run folder |
 | `replay` | Execute an existing DSL/test flow |
 | `compare` | Capture checkpoint and compare to provided reference/design |
 
@@ -63,7 +63,10 @@ Default platform: Android. Use iOS when the user says iOS/simulator or passes
 ## Artifacts
 
 - `test` mode writes `specs/<SPEC>/runs/<platform>/<run_id>/`.
-- Other modes may write `.tapwright-run/` scratch evidence when useful.
+- Other modes write optional scratch evidence under
+  `.tapwright-run/<YYYY-MM-DD>/<HH-mm-ssZ>-<mode>/`.
+- One request uses one run folder. Reuse it for every screenshot, dump, log, and
+  provisional DSL created for that request.
 - Simple automation can be chat-only.
 
 ## Flow

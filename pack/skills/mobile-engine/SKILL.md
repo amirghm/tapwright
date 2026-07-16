@@ -45,12 +45,12 @@ least surprising mode and say which one you chose in the brief.
 
 | Mode | Triggers | Output |
 |---|---|---|
-| `inspect` | inspect, current screen, what do you see, screenshot, dump | Chat summary; optional `.tapwright-run/` evidence |
+| `inspect` | inspect, current screen, what do you see, screenshot, dump | Chat summary; optional timestamped evidence |
 | `automate` | automate, do, complete, open, log in, navigate, toggle | Same behavior as `/exec`; chat summary by default |
 | `manual` | manual test, guide me, step by step, watch it | One action/checkpoint at a time; chat summary |
 | `test` | test, e2e, spec, `test-plan.md`, `/test` | Same behavior as `/test`; report + DSL |
 | `debug` | debug, logs, stuck, failed, why | Logs + dump + screenshot summary; optional scratch evidence |
-| `record` | record, turn this into DSL, capture flow | Provisional DSL under `.tapwright-run/` |
+| `record` | record, turn this into DSL, capture flow | Provisional DSL in the request's run folder |
 | `replay` | replay, run this DSL | Execute DSL/test flow; summary + optional evidence |
 | `compare` | compare, design, screenshot diff, Figma, reference | Side-by-side qualitative notes; optional evidence |
 
@@ -65,6 +65,29 @@ least surprising mode and say which one you chose in the brief.
 
 ## Mode routing
 
+### Non-E2E run folder
+
+When a non-E2E request needs files, create one folder at the start and reuse it
+for the whole request:
+
+```text
+.tapwright-run/<YYYY-MM-DD>/<HH-mm-ssZ>-<mode>/
+```
+
+Initialize it once per request:
+
+```bash
+export TAPWRIGHT_RUN_DIR="$(pack/scripts/new-run-dir.sh <mode>)"
+```
+
+```powershell
+$env:TAPWRIGHT_RUN_DIR = & "pack/scripts/new-run-dir.ps1" -Mode <mode>
+```
+
+If a folder already exists for the same second, the helper adds `-2`, `-3`, and
+so on. Do not create a new folder for every action or screenshot in the same
+request.
+
 ### inspect
 
 Read `tapwright.config.yml` if present, then use the platform device skill.
@@ -75,7 +98,8 @@ Minimum useful inspection:
 2. Report app identity from config when available (`android.package_id` /
    `ios.bundle_id`).
 3. Dump the UI tree (`uiautomator` XML or `idb ui describe-all` JSON).
-4. Capture a screenshot only when useful; if saved, use `.tapwright-run/`.
+4. Capture a screenshot only when useful; if saved, use
+   `$TAPWRIGHT_RUN_DIR/resources/`.
 5. Summarize visible labels, focused activity/bundle, and likely current screen.
 
 ### automate
@@ -122,12 +146,12 @@ Gather enough evidence for the user or agent to fix code:
 - platform logs when requested or when failure is app-launch/runtime related
 - recent gate/blocker text from the dump
 
-Save evidence under `.tapwright-run/debug-<timestamp>/` when it helps.
+Save evidence under `$TAPWRIGHT_RUN_DIR/` when it helps.
 
 ### record
 
 Record the actions actually taken, not guesses. Use the same dump-first loop as
-automation, then write provisional DSL under `.tapwright-run/recordings/<name>/`.
+automation, then write provisional DSL under `$TAPWRIGHT_RUN_DIR/`.
 
 The DSL may be incomplete, but it must include:
 
@@ -160,7 +184,8 @@ This is assisted review, not pixel-perfect visual regression.
 
 - E2E/test mode always writes report, DSL, and resources under
   `specs/<SPEC>/runs/...`.
-- Non-E2E modes may write `.tapwright-run/` scratch evidence when useful.
+- Non-E2E modes may write scratch evidence under
+  `.tapwright-run/<date>/<time>-<mode>/` when useful.
 - Simple automation can remain chat-only.
 - Never write passwords or secrets to artifacts.
 

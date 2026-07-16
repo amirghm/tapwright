@@ -68,7 +68,10 @@ The rule of thumb is simple:
 
 - `@mobile test` writes reports/DSL/resources under
   `specs/<SPEC>/runs/<platform>/<run_id>/`.
-- Other modes may write scratch evidence under `.tapwright-run/` when useful.
+- Other modes may write scratch evidence under
+  `.tapwright-run/<YYYY-MM-DD>/<HH-mm-ssZ>-<mode>/` when useful. Every request
+  gets a separate UTC-dated folder, and all evidence for that request stays
+  together.
 - Simple automation can remain chat-only.
 
 ## Compatibility

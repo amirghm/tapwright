@@ -1,10 +1,10 @@
 ---
-description: Run ad-hoc natural-language tasks on a mobile app via Android emulator or iOS Simulator. Chat summary only - no artifacts.
+description: Run ad-hoc natural-language tasks on a mobile app via Android emulator or iOS Simulator. Chat summary with optional timestamped scratch evidence.
 ---
 
 # `/exec` : Natural-Language Mobile Execution
 
-**Goal:** Do a one-off task on a real emulator/simulator from plain English - log in, navigate, toggle a setting, complete a flow. No test plan, no DSL, no files in the repo.
+**Goal:** Do a one-off task on a real emulator/simulator from plain English - log in, navigate, toggle a setting, complete a flow. No test plan or retained DSL. Scratch screenshots or dumps, when needed, go in a timestamped `.tapwright-run/` folder.
 
 **Priorities (in order):**
 1. **Code dig → step plan** before any taps (labels + nav from your app source, per `tapwright.config.yml`)
@@ -35,7 +35,7 @@ description: Run ad-hoc natural-language tasks on a mobile app via Android emula
 | | `/test` | `/exec` |
 |---|---|---|
 | Input | a spec's `test-plan.md` | Your sentence |
-| Output | DSL + report | **Chat summary only** |
+| Output | DSL + report | **Chat summary; optional scratch evidence** |
 | Prep | Full verification | **Focused code dig → step plan** (mandatory) |
 
 ---
@@ -131,7 +131,9 @@ verify final success signal from dump → teardown
 Android helpers: `source pack/scripts/adb-helpers.sh` (`export SERIAL=...`, `export PKG=<applicationId>`).
 iOS helpers: `source pack/scripts/ios-helpers.sh` (`export UDID=...`). Taps from dump/AX, not shrunk PNG.
 
-**No** Python orchestration scripts. **No** files written to the repo.
+**No** Python orchestration scripts. When scratch evidence is needed, create one
+`.tapwright-run/<YYYY-MM-DD>/<HH-mm-ssZ>-automate/` folder and reuse it for the
+whole request. Do not write files elsewhere in the repo.
 
 ---
 

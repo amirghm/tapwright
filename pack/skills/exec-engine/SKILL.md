@@ -5,7 +5,8 @@ description: |
   - The user runs `/exec ...` with a plain-English task on a mobile app.
   - You need to parse NL intent (log in, navigate, toggle, complete a flow) and drive adb/idb.
   - The user asks for ad-hoc emulator/simulator actions without a test plan.
-  ALWAYS read this skill before `/exec`. Output is chat-only - no files written to the repo.
+  ALWAYS read this skill before `/exec`. Output is chat-first, with timestamped
+  scratch evidence only when needed.
   Structured spec runs: use the `test-engine` skill + `/test` instead.
 ---
 
@@ -145,4 +146,4 @@ Blockers / follow-ups only if needed.
 |---|---|---|
 | Input | Natural language | a spec's `test-plan.md` |
 | Prep | Focused dig → step plan | Full verification |
-| Artifacts | None | DSL + report + resources |
+| Artifacts | Optional `.tapwright-run/<date>/<time>-automate/` scratch evidence | DSL + report + resources |

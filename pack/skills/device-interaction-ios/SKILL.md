@@ -193,7 +193,13 @@ Do **not** use raw `xcrun simctl io ... screenshot` for checkpoints in `/test` /
 ## Interactions
 
 ```bash
-export RESOURCES="./.tapwright-run/resources"    # /test sets this to the run folder
+# Run once per non-E2E request. Preserve /test's spec run folder when provided.
+if [[ -z "${RESOURCES:-}" ]]; then
+  if [[ -z "${TAPWRIGHT_RUN_DIR:-}" ]]; then
+    export TAPWRIGHT_RUN_DIR="$(pack/scripts/new-run-dir.sh run)"
+  fi
+  export RESOURCES="$TAPWRIGHT_RUN_DIR/resources"
+fi
 
 # Tap at coordinates (from accessibility frame center - not from shrunk PNG)
 idb ui tap --udid "$UDID" 200 400
