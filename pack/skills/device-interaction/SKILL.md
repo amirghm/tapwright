@@ -138,9 +138,15 @@ $ADB shell input swipe 540 1200 540 1200 700
 # Swipe / scroll (x1 y1 x2 y2 durationMs). Swipe UP to scroll down:
 $ADB shell input swipe 540 1600 540 600 300
 
-# Type text into the focused field. Spaces must be escaped as %s; avoid unescaped special chars.
-$ADB shell input text 'hello%sworld'
-# For emails/passwords with special characters, tap the field first, then type.
+# Type text into the focused field.
+type_text 'hello world'
+
+# Long prompts: pass the text through stdin. Newlines become safe spaces and do
+# not submit the field; submit explicitly after type_text finishes.
+type_text <<'TEXT'
+Create a calm daily planner with a Today board, priorities, and a focus timer.
+Keep the experience simple and verify the main flow.
+TEXT
 
 # Key events (physical / navigation buttons)
 $ADB shell input keyevent 4    # BACK
@@ -154,7 +160,12 @@ $ADB shell input keyevent 25   # VOLUME_DOWN
 ```
 
 Text-entry tips:
-- Escape spaces as `%s`. Parentheses, `&`, `<`, `>` and quotes are shell/`input`-sensitive - wrap the whole string in single quotes and prefer characters the field accepts.
+- Use `type_text`; never encode spaces as `%s` or send long prose through raw
+  `adb shell input text`.
+- `type_text` turns whitespace, including newlines, into spaces. Submit the field
+  explicitly only after the complete value has been entered.
+- `type_text` supports ASCII and fails before typing unsupported Unicode. Use a
+  Unicode-capable device keyboard when the requested text contains non-ASCII.
 - To clear a field: focus it, then `$ADB shell input keyevent KEYCODE_MOVE_END` and hold `67` (DEL) enough times, or select-all + delete via the keyboard.
 
 ## App lifecycle helpers
@@ -185,9 +196,9 @@ sleep 4
 $ADB shell input tap 540 1500      # "Log in"
 sleep 1
 $ADB shell input tap 540 700       # email field
-$ADB shell input text 'qa@example.com'
+type_text 'qa@example.com'
 $ADB shell input tap 540 900       # password field
-$ADB shell input text 'hunter2'
+type_text "$PASSWORD"
 $ADB shell input keyevent 66
 sleep 5
 screenshot "$RESOURCES/checkpoint-post-login.png"

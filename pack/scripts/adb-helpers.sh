@@ -5,7 +5,7 @@
 #   export PKG=com.example.app       # optional: your app's applicationId
 #   source pack/scripts/adb-helpers.sh
 #
-# Functions: dump_ui, tap_text, screenshot, has_plus, assert_no_plus
+# Functions: dump_ui, tap_text, type_text, screenshot, has_plus, assert_no_plus
 #
 # Resolve this file's directory when sourced (bash or zsh)
 if [ -n "${BASH_SOURCE[0]:-}" ]; then
@@ -52,6 +52,53 @@ tap_text() {
   echo "  tap '$label' ($x,$y)"
   adb -s "$SERIAL" shell input tap "$x" "$y"
   sleep "${STEP_PAUSE:-2}"
+}
+
+# Type ASCII text into the focused field without adb's fragile %s space escape.
+# Pass text as one argument or through stdin. Words are sent separately and all
+# whitespace becomes a space key event so a newline cannot submit the field.
+# Unsupported Unicode fails before anything is sent.
+type_text() {
+  local text script
+  if [[ $# -gt 0 ]]; then
+    text="$1"
+  else
+    text="$(cat)"
+  fi
+
+  script="$(mktemp)"
+  if ! TW_TEXT="$text" perl -e '
+    use strict;
+    use warnings;
+    my $text = $ENV{TW_TEXT} // "";
+    die "type_text: non-ASCII text requires a Unicode-capable device keyboard\n"
+      if $text =~ /[^\x09\x0A\x0D\x20-\x7E]/;
+
+    sub emit_text {
+      my ($value) = @_;
+      return if $value eq "";
+      $value =~ s/\x27/\x27"\x27"\x27/g;
+      print "input text \x27$value\x27\n";
+    }
+
+    for my $part (split(/(\r\n|\r|\n|[ \t])/, $text, -1)) {
+      if ($part eq " " || $part eq "\t" || $part eq "\n" ||
+          $part eq "\r" || $part eq "\r\n") {
+        print "input keyevent 62\n";
+      } else {
+        # Keep percent signs separate so literal %s is never interpreted as a space.
+        emit_text($_) for split(/(%)/, $part, -1);
+      }
+    }
+  ' > "$script"; then
+    rm -f "$script"
+    return 2
+  fi
+
+  adb -s "$SERIAL" shell sh < "$script"
+  local status=$?
+  rm -f "$script"
+  return "$status"
 }
 
 # Capture a full-res screenshot then shrink it in place (writes <file>.meta).

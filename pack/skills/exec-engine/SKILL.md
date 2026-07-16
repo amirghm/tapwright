@@ -95,6 +95,8 @@ If the dump shows a state that blocks the plan (a disabled control, a "not avail
 1. Launch (reuse install/session when possible).
 2. Dismiss blockers immediately via dump labels (OS permission dialogs, ATT, notification sheets, "Allow"/"Don't Allow").
 3. For each plan step: dump → grep needles → tap center → batch next 2-5 in the same Shell when safe.
+   On Android, enter all text with `type_text` from `adb-helpers.sh`. Never build
+   `%s`-escaped `adb shell input text` commands, especially for long prompts.
 4. Sleeps: **0.3-1s** tap-to-tap; **3-4s** after launch / login / save / network.
 5. Scroll once if a needle is missing. Then micro-grep source when available, or
    inspect nearby stable live targets when it is not; retry once.
