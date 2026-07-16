@@ -1,25 +1,52 @@
-# tapwright
+<p align="center">
+  <img src="assets/tapwright-icon.svg" width="96" height="96" alt="tapwright icon">
+</p>
 
-**`@mobile` for coding agents. Inspect, automate, and test real mobile apps.**
+<h1 align="center">tapwright</h1>
+
+<p align="center">
+  <strong><code>@mobile</code> for coding agents.</strong><br>
+  Inspect, automate, debug, record, replay, compare, and E2E test real Android and iOS apps.
+</p>
+
+<p align="center">
+  <a href="https://github.com/amirghm/tapwright/blob/main/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a>
+  <a href="https://github.com/amirghm/tapwright"><img alt="Status: early" src="https://img.shields.io/badge/status-early-green"></a>
+  <a href="docs/mobile.md"><img alt="@mobile docs" src="https://img.shields.io/badge/docs-%40mobile-101820"></a>
+  <a href="docs/install-agent.md"><img alt="Install with agent" src="https://img.shields.io/badge/install-agent--readable-00A676"></a>
+</p>
 
 tapwright is a small pack of Markdown instructions and shell helpers. It helps coding agents
-like Codex, Claude Code, Cursor, OpenCode, and Copilot work with **Android emulators** (`adb`)
-and **iOS Simulators** (`simctl` + `idb`).
+like Codex, Claude Code, Cursor, OpenCode, and Copilot work with Android emulators and iOS
+Simulators.
 
-Put it in a mobile repo, fill in `tapwright.config.yml`, then ask your agent to use `@mobile`:
+Put it in a mobile repo, fill in `tapwright.config.yml`, then ask your agent to use `@mobile`.
 
-- `@mobile inspect` checks the current device, app, and screen.
-- `@mobile automate ...` runs a one-off task, like logging in or opening a settings page.
-- `@mobile manual ...` walks through a UI check one step at a time.
-- `@mobile test ...` runs a `test-plan.md` and writes a report plus replayable DSL.
-- `@mobile debug`, `record`, `replay`, and `compare` cover the usual follow-up work.
+```text
+@mobile inspect
+@mobile automate log in and open the account screen
+@mobile test CHECKOUT --ios --headless
+```
 
 `/exec` and `/test` still work as aliases for older setups.
+
+## What You Get
+
+| Mode | What it does |
+|---|---|
+| `@mobile inspect` | Checks the current device, app, screen, UI tree, and optional screenshot. |
+| `@mobile automate ...` | Runs a one-off task, like logging in or opening a settings page. |
+| `@mobile manual ...` | Walks through a UI check one action at a time. |
+| `@mobile test ...` | Runs a `test-plan.md` and writes a report plus replayable DSL. |
+| `@mobile debug ...` | Gathers UI dumps, screenshots, app state, and logs. |
+| `@mobile record ...` | Saves performed actions as draft DSL. |
+| `@mobile replay ...` | Runs an existing DSL or test flow. |
+| `@mobile compare ...` | Compares a mobile screenshot with a design or reference image. |
 
 There is no app SDK, background service, or hosted runner. The agent uses local tools that mobile
 developers already have around.
 
-## Why this exists
+## Why This Exists
 
 Most agent-driven mobile tools start with screenshots. That works sometimes, but it is easy to
 tap the wrong place and it burns context fast.
@@ -37,31 +64,18 @@ map back to real UI.
 
 | | tapwright | Typical vision-first tool |
 |---|---|---|
-| How it finds targets | Source strings -> UI dump -> element bounds | Screenshot -> model guesses coords |
-| LLM | The agent you already run | Bundled model + your API key |
-| Runtime | Markdown + shell in your agent | Separate CLI / daemon / service |
-| Tokens | Dump text + shrunk checkpoints | Full-res screenshot per step |
-
-## Requirements
-
-- macOS or Linux, `bash`/`zsh`.
-- **Android:** Android SDK platform-tools (`adb`), an emulator (AVD) or connected device.
-- **iOS (macOS only):** Xcode + a Simulator runtime, plus `idb`:
-  ```bash
-  brew tap facebook/fb && brew install idb-companion
-  pip3 install fb-idb   # or: pipx install fb-idb
-  ```
-- A coding agent that reads skills/workflows from your repo (Cursor, Claude Code, Codex, ...).
+| Finds targets from | Source strings, UI dump, element bounds | Screenshot and guessed coordinates |
+| Runs in | The agent you already use | A separate runtime or service |
+| App changes needed | None | Often test IDs, SDKs, or extra setup |
+| Evidence | Small screenshots, UI dumps, reports, DSL | Usually full screenshots |
 
 ## Quickstart
 
-Simplest path: send this page to your coding agent and ask it to install tapwright in your app repo:
+Send this page to your coding agent and ask it to install tapwright in your app repo:
 
 ```text
 https://raw.githubusercontent.com/amirghm/tapwright/main/docs/install-agent.md
 ```
-
-If you already have the repo locally, use [docs/install-agent.md](docs/install-agent.md).
 
 Then try:
 
@@ -72,69 +86,74 @@ Then try:
 Manual local install:
 
 ```bash
-# 1. Clone tapwright next to your app repo
 git clone https://github.com/amirghm/tapwright.git
-
-# 2. Install it into your mobile app repo
 cd /path/to/your-app
-/path/to/tapwright/install.sh            # auto-detects .cursor / .claude / .agents
-
-# 3. Describe your app
+/path/to/tapwright/install.sh
 cp /path/to/tapwright/config/tapwright.config.example.yml ./tapwright.config.yml
-$EDITOR tapwright.config.yml             # package id, launch, string globs, ...
+$EDITOR tapwright.config.yml
 ```
 
-Then, in your agent:
+## Requirements
 
+- macOS or Linux with `bash` or `zsh`
+- Android SDK platform-tools for Android runs
+- Xcode, an iOS Simulator runtime, and `idb` for iOS runs
+- A coding agent that can read repo instructions, skills, rules, or Markdown workflows
+
+iOS setup:
+
+```bash
+brew tap facebook/fb
+brew install idb-companion
+pip3 install fb-idb
 ```
-@mobile inspect
-@mobile automate on android: log in as qa@example.com and open the account screen
-@mobile test CHECKOUT             # runs specs/CHECKOUT/test-plan.md, writes a report
-```
 
-See [docs/getting-started.md](docs/getting-started.md) for a full walkthrough and
-[docs/mobile.md](docs/mobile.md) for the `@mobile` modes. See [examples/](examples/) for sample configs.
+## What Is In The Repo
 
-## What's in the box
-
-```
+```text
 pack/
   workflows/   mobile.md, exec.md, test.md
-  skills/      mobile, exec-engine,
-               test-engine,
-               device-interaction (adb),
-               device-interaction-ios (idb)
-  scripts/     shrink-screenshot, adb/ios helpers, show-ios-simulator
-  templates/   test-plan, test-report, e2e DSL + patterns
+  skills/      mobile, exec-engine, test-engine,
+               device-interaction, device-interaction-ios
+  scripts/     adb helpers, iOS helpers, screenshot shrinker
+  templates/   test plan, report, e2e DSL, patterns
 config/        tapwright.config.example.yml
-docs/          getting-started, config-reference, writing-a-step-plan, supported-stacks
-examples/      android-compose, ios-swiftui
+docs/          install, config, supported stacks, @mobile
+examples/      Android Compose, iOS SwiftUI
 ```
 
-## How it works
+## How It Works
 
 ```mermaid
 flowchart TD
     A["@mobile request"] --> B{Mode}
-    B -->|inspect/debug/manual| C[Dump UI + optional evidence]
-    B -->|automate| D["Code dig -> step plan"]
-    B -->|test| E["Verify spec -> run scenarios"]
-    D --> F[Boot / install / launch app]
+    B -->|inspect/debug/manual| C[Dump UI and collect evidence]
+    B -->|automate| D["Read source strings and plan steps"]
+    B -->|test| E["Verify test plan against source"]
+    D --> F[Build, install, or launch app]
     E --> F
-    F --> G["Dump UI -> grep planned labels -> tap bounds"]
-    G --> H{Step ok?}
-    H -->|miss x2| I[Re-dig source -> fix plan]
-    I --> G
-    H -->|yes| J[Verify from dump]
-    C --> K[Chat summary / scratch evidence]
-    J --> K
-    E --> L[Report + DSL]
+    F --> G["Dump UI tree and find labels"]
+    G --> H[Tap real element bounds]
+    H --> I{Expected screen?}
+    I -->|yes| J[Report result]
+    I -->|no| K[Re-check source or stop on gate]
+    K --> G
 ```
 
-## Status & scope
+## Docs
 
-v1 targets **Android + iOS** local emulators/simulators. Out of scope for now: web/browser
-targets, real-device farms, a hosted CI service, and npm/pip publishing. Contributions welcome.
+- [Getting started](docs/getting-started.md)
+- [`@mobile` modes](docs/mobile.md)
+- [Agent install page](docs/install-agent.md)
+- [Config reference](docs/config-reference.md)
+- [Supported stacks](docs/supported-stacks.md)
+- [Writing a test plan](docs/writing-a-step-plan.md)
+
+## Status
+
+v1 targets local Android emulators and iOS Simulators. Physical devices require explicit user
+confirmation before interaction. Web targets, device farms, hosted CI, and package publishing are
+out of scope for now.
 
 ## License
 
