@@ -3,23 +3,25 @@
 `@mobile` is the main tapwright entrypoint.
 
 Use it when you want a coding agent to look at a mobile app, interact with it,
-debug it, or run an E2E plan. V1 is just Markdown instructions, templates, and
-shell helpers. It is not a runtime, SDK, daemon, or hosted service.
+debug it, or turn a repeated flow into a test. V1 is just Markdown instructions,
+templates, and shell helpers. It is not a runtime, SDK, daemon, or hosted service.
 
 ## Examples
 
 ```text
-@mobile inspect
-@mobile automate log in and open the account screen
-@mobile manual test the checkout flow
-@mobile test CHECKOUT
-@mobile debug why launch is stuck
-@mobile record onboarding
-@mobile replay specs/CHECKOUT/runs/android/<run_id>/e-1-checkout.dsl.yaml
-@mobile compare current screen with this design
+@mobile what screen is my app showing?
+@mobile log in with the QA account and find billing
+@mobile check if a new user can skip onboarding
+@mobile open the latest order and see if refund is available
+@mobile find where the app asks for notification permission
+@mobile debug why login is stuck
+@mobile record the onboarding flow so we can make it a test
+@mobile compare this screen with the design
 ```
 
 ## Modes
+
+You can still use explicit modes when you want them:
 
 | Mode | Use it for |
 |---|---|

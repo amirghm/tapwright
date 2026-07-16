@@ -1,159 +1,92 @@
 <p align="center">
-  <img src="assets/tapwright-icon.svg" width="96" height="96" alt="tapwright icon">
+  <img src="assets/tapwright-icon.png" width="104" height="104" alt="tapwright icon">
 </p>
 
 <h1 align="center">tapwright</h1>
 
 <p align="center">
   <strong><code>@mobile</code> for coding agents.</strong><br>
-  Inspect, automate, debug, record, replay, compare, and E2E test real Android and iOS apps.
+  Tell your agent what to do in your mobile app. It opens the app, taps around, checks the result, and reports back.
 </p>
 
 <p align="center">
   <a href="https://github.com/amirghm/tapwright/blob/main/LICENSE"><img alt="License: Apache-2.0" src="https://img.shields.io/badge/license-Apache--2.0-blue"></a>
   <a href="https://github.com/amirghm/tapwright"><img alt="Status: early" src="https://img.shields.io/badge/status-early-green"></a>
-  <a href="docs/mobile.md"><img alt="@mobile docs" src="https://img.shields.io/badge/docs-%40mobile-101820"></a>
-  <a href="docs/install-agent.md"><img alt="Install with agent" src="https://img.shields.io/badge/install-agent--readable-00A676"></a>
+  <a href="docs/install-agent.md"><img alt="Install with agent" src="https://img.shields.io/badge/install-copy%20to%20agent-00A676"></a>
 </p>
 
-tapwright is a small pack of Markdown instructions and shell helpers. It helps coding agents
-like Codex, Claude Code, Cursor, OpenCode, and Copilot work with Android emulators and iOS
-Simulators.
+## Install
 
-Put it in a mobile repo, fill in `tapwright.config.yml`, then ask your agent to use `@mobile`.
+Copy this and send it to your coding agent:
 
 ```text
-@mobile inspect
-@mobile automate log in and open the account screen
-@mobile test CHECKOUT --ios --headless
+Install tapwright in this repo: https://raw.githubusercontent.com/amirghm/tapwright/main/docs/install-agent.md
 ```
 
-`/exec` and `/test` still work as aliases for older setups.
+That is it. The agent reads the page, installs the repo files, checks what mobile tools are
+available, and tells you what it can run.
 
-## What You Get
+## What You Can Ask
 
-| Mode | What it does |
+```text
+@mobile log in with the QA account and find the subscription settings
+@mobile check if a new user can skip onboarding and reach the home screen
+@mobile open the latest order and tell me if the refund button is available
+@mobile find where the app asks for notification permission
+@mobile compare this screen with the design
+@mobile debug why login is stuck
+```
+
+## Use Cases
+
+| You want to know | Ask |
 |---|---|
-| `@mobile inspect` | Checks the current device, app, screen, UI tree, and optional screenshot. |
-| `@mobile automate ...` | Runs a one-off task, like logging in or opening a settings page. |
-| `@mobile manual ...` | Walks through a UI check one action at a time. |
-| `@mobile test ...` | Runs a `test-plan.md` and writes a report plus replayable DSL. |
-| `@mobile debug ...` | Gathers UI dumps, screenshots, app state, and logs. |
-| `@mobile record ...` | Saves performed actions as draft DSL. |
-| `@mobile replay ...` | Runs an existing DSL or test flow. |
-| `@mobile compare ...` | Compares a mobile screenshot with a design or reference image. |
+| What screen is open right now | `@mobile what screen is my app showing?` |
+| Whether a flow still works | `@mobile check if checkout still works` |
+| Where something lives in the app | `@mobile find the billing settings` |
+| Whether a button or option is available | `@mobile open the latest order and check if refund is available` |
+| Why a flow is stuck | `@mobile debug why login is stuck` |
+| Whether UI matches a design | `@mobile compare this screen with the design` |
+| Turn a repeated flow into a test | `@mobile record the onboarding flow` |
+| Run a saved E2E plan | `@mobile test CHECKOUT` |
 
-There is no app SDK, background service, or hosted runner. The agent uses local tools that mobile
-developers already have around.
+## What It Feels Like
 
-## Why This Exists
-
-Most agent-driven mobile tools start with screenshots. That works sometimes, but it is easy to
-tap the wrong place and it burns context fast.
-
-tapwright starts with the things your app already knows:
-
-1. Read string resources and navigation files before touching the device.
-2. Dump the live UI tree with `uiautomator` or `idb`.
-3. Find real labels and bounds.
-4. Tap those bounds.
-5. Use screenshots only when the tree does not have enough information.
-
-The goal is boring in a good way: fewer guessed taps, smaller screenshots, and test steps that
-map back to real UI.
-
-| | tapwright | Typical vision-first tool |
-|---|---|---|
-| Finds targets from | Source strings, UI dump, element bounds | Screenshot and guessed coordinates |
-| Runs in | The agent you already use | A separate runtime or service |
-| App changes needed | None | Often test IDs, SDKs, or extra setup |
-| Evidence | Small screenshots, UI dumps, reports, DSL | Usually full screenshots |
-
-## Quickstart
-
-Send this page to your coding agent and ask it to install tapwright in your app repo:
+You ask for the outcome. Your agent does the mobile work.
 
 ```text
-https://raw.githubusercontent.com/amirghm/tapwright/main/docs/install-agent.md
+You: @mobile log in with the QA account and find billing
+
+Agent:
+- opened the Android emulator
+- logged in with the QA account
+- found Billing under Account -> Settings
+- confirmed the Upgrade button is visible
+- saved a screenshot because the screen had dynamic pricing
 ```
 
-Then try:
+No new test runner to learn before you can try it.
 
-```text
-@mobile inspect
-```
+## Why It Works
 
-Manual local install:
+tapwright gives your agent a simple rule: read the app first, then tap.
 
-```bash
-git clone https://github.com/amirghm/tapwright.git
-cd /path/to/your-app
-/path/to/tapwright/install.sh
-cp /path/to/tapwright/config/tapwright.config.example.yml ./tapwright.config.yml
-$EDITOR tapwright.config.yml
-```
+Instead of guessing from screenshots, it looks at app strings, navigation files, and the live UI tree.
+Then it taps real elements and uses screenshots only when they help.
 
-## Requirements
+## Platforms
 
-- macOS or Linux with `bash` or `zsh`
-- Android SDK platform-tools for Android runs
-- Xcode, an iOS Simulator runtime, and `idb` for iOS runs
-- A coding agent that can read repo instructions, skills, rules, or Markdown workflows
-
-iOS setup:
-
-```bash
-brew tap facebook/fb
-brew install idb-companion
-pip3 install fb-idb
-```
-
-## What Is In The Repo
-
-```text
-pack/
-  workflows/   mobile.md, exec.md, test.md
-  skills/      mobile, exec-engine, test-engine,
-               device-interaction, device-interaction-ios
-  scripts/     adb helpers, iOS helpers, screenshot shrinker
-  templates/   test plan, report, e2e DSL, patterns
-config/        tapwright.config.example.yml
-docs/          install, config, supported stacks, @mobile
-examples/      Android Compose, iOS SwiftUI
-```
-
-## How It Works
-
-```mermaid
-flowchart TD
-    A["@mobile request"] --> B{Mode}
-    B -->|inspect/debug/manual| C[Dump UI and collect evidence]
-    B -->|automate| D["Read source strings and plan steps"]
-    B -->|test| E["Verify test plan against source"]
-    D --> F[Build, install, or launch app]
-    E --> F
-    F --> G["Dump UI tree and find labels"]
-    G --> H[Tap real element bounds]
-    H --> I{Expected screen?}
-    I -->|yes| J[Report result]
-    I -->|no| K[Re-check source or stop on gate]
-    K --> G
-```
+- Android works on macOS, Linux, and Windows. The agent checks the local device setup.
+- iOS works on macOS. The agent checks the local Simulator setup.
+- Physical devices require your explicit approval before the agent touches them.
 
 ## Docs
 
-- [Getting started](docs/getting-started.md)
-- [`@mobile` modes](docs/mobile.md)
 - [Agent install page](docs/install-agent.md)
+- [`@mobile` examples and modes](docs/mobile.md)
+- [Getting started](docs/getting-started.md)
 - [Config reference](docs/config-reference.md)
 - [Supported stacks](docs/supported-stacks.md)
-- [Writing a test plan](docs/writing-a-step-plan.md)
-
-## Status
-
-v1 targets local Android emulators and iOS Simulators. Physical devices require explicit user
-confirmation before interaction. Web targets, device farms, hosted CI, and package publishing are
-out of scope for now.
 
 ## License
 

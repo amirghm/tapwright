@@ -1,50 +1,21 @@
 # Getting started
 
-This gets tapwright installed in a mobile repo and runs a first `@mobile inspect`.
+This gets tapwright installed in a mobile repo and runs a first `@mobile` request.
 
-## 1. Install prerequisites
+## 1. Send the install link to your agent
 
-- **Android:** Android SDK platform-tools (`adb` on your PATH) and an emulator (AVD) or a
-  connected device with USB debugging.
-- **iOS (macOS only):** Xcode + a Simulator runtime, plus `idb`:
-  ```bash
-  brew tap facebook/fb && brew install idb-companion
-  pip3 install fb-idb   # or: pipx install fb-idb
-  ```
-
-Sanity checks:
-```bash
-adb devices -l
-xcrun simctl list devices booted   # macOS
-```
-
-## 2. Install the pack into your app repo
-
-Recommended: send this page to your coding agent and ask it to install tapwright in the current repo:
+Ask your coding agent to install tapwright in the current repo:
 
 ```text
 https://raw.githubusercontent.com/amirghm/tapwright/main/docs/install-agent.md
 ```
 
-From a local checkout, use [install-agent.md](install-agent.md). That page tells the agent what
-to clone, what command to run, and what to try first.
+The agent should clone tapwright, run the right installer for your OS, check mobile tooling,
+and report anything missing. Windows is supported for Android. iOS is macOS-only.
 
-Manual local install:
+## 2. Describe your app
 
-```bash
-git clone https://github.com/amirghm/tapwright.git
-cd /path/to/your-app
-/path/to/tapwright/install.sh          # detects .cursor / .claude / .agents
-```
-
-The installer copies the pack into `<agent-dir>/{workflows,skills,scripts,templates}` and
-seeds a starter `tapwright.config.yml`. If your agent reads slash commands from a dedicated
-folder (e.g. `.claude/commands`), the installer adds best-effort adapters and tells you
-what it installed.
-
-## 3. Describe your app
-
-Edit `tapwright.config.yml`. Start with these fields:
+The agent should create `tapwright.config.yml` if it does not exist. Start with these fields:
 
 ```yaml
 android:
@@ -62,23 +33,23 @@ locales: [en]
 See [config-reference.md](config-reference.md) for every field and
 [supported-stacks.md](supported-stacks.md) for per-framework glob presets.
 
-## 4. Run `@mobile inspect`
+## 3. Ask what the app is showing
 
 In your agent:
 
 ```
-@mobile inspect
+@mobile what screen is my app showing?
 ```
 
 The agent selects an emulator or simulator, reads `tapwright.config.yml` if it exists, dumps the
 current UI tree, and summarizes what it found. It may save a small screenshot if that helps.
 
-## 5. Run `@mobile automate` (ad-hoc)
+## 4. Ask it to do a job
 
 In your agent:
 
 ```
-@mobile automate on android: log in as qa@example.com and open the account screen
+@mobile log in with qa@example.com and open the account screen
 ```
 
 The agent looks through your strings and navigation files for the labels it needs, builds a short
@@ -86,7 +57,7 @@ plan, launches the app, then dumps the UI tree and taps matching elements. You g
 
 Compatibility alias: `/exec on android: ...`
 
-## 6. Run `@mobile test` (spec)
+## 5. Run `@mobile test` (spec)
 
 Create `specs/<SPEC>/test-plan.md` from [../pack/templates/test-plan.md](../pack/templates/test-plan.md),
 then:

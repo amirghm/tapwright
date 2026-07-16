@@ -96,11 +96,9 @@ Use tapwright when the user asks for \`@mobile\`, mobile app inspection, mobile 
 - Prefer emulators/simulators; ask before touching physical devices.
 - Resolve UI targets from dumps/accessibility trees before screenshots or coordinates.
 
-First useful command after install:
+First useful request after install:
 
-\`\`\`text
-@mobile inspect
-\`\`\`
+\`@mobile what screen is my app showing?\`
 
 <!-- tapwright:mobile end -->
 EOF
@@ -185,8 +183,6 @@ Best-effort adapters were added when matching agent folders existed:
   .github/copilot-instructions.md
 
 Next:
-  1. Edit tapwright.config.yml (package/bundle ids, string globs, launch/build).
-  2. In your agent, run:  @mobile inspect
-                          @mobile automate log in and open the home screen
-                          @mobile test <SPEC>
+  1. Fill tapwright.config.yml for this app.
+  2. Ask your agent: @mobile what screen is my app showing?
 EOF
