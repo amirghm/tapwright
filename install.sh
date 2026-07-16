@@ -97,6 +97,8 @@ Use tapwright when the user runs \`@mobile\` or \`/mobile\`, or asks for mobile 
 - Route ad-hoc automation through \`$AGENT_DIR/skills/exec-engine/SKILL.md\`.
 - Route E2E specs through \`$AGENT_DIR/skills/test-engine/SKILL.md\` and \`$AGENT_DIR/workflows/test.md\`.
 - Use Android/iOS device recipes from \`$AGENT_DIR/skills/device-interaction*/SKILL.md\`.
+- Before every task, read the per-app App Map under \`.tapwright-memory/<platform>/<app-id>/app-map.yaml\`; create it when missing and update it after the task.
+- Source code is optional. Use a complete matching App Map route directly; inspect code only for gaps when source exists, otherwise learn from the live UI.
 - Prefer emulators/simulators; ask before touching physical devices.
 - Resolve UI targets from dumps/accessibility trees before screenshots or coordinates.
 
@@ -180,6 +182,8 @@ Done. Installed:
   $AGENT_DIR/templates/*
   AGENTS.md tapwright mobile block
 
+App Memory will be created per app under .tapwright-memory/ on the first request.
+
 Best-effort adapters were added when matching agent folders existed:
   .claude/commands/mobile.md
   .cursor/rules/tapwright-mobile.mdc
@@ -187,7 +191,7 @@ Best-effort adapters were added when matching agent folders existed:
   .github/copilot-instructions.md
 
 Next:
-  1. Fill tapwright.config.yml for this app.
+  1. Fill what you know in tapwright.config.yml. Source code is optional.
   2. Ask your agent: @mobile what screen is my app showing?
      If @mobile is not supported, use /mobile instead.
 EOF

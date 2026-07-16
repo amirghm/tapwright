@@ -3,15 +3,17 @@ name: test-engine
 description: |
   Mobile test-plan execution engine for tapwright. Use this skill whenever:
   - The user runs `/test SPEC`, `/test SPEC --ios`, or `/test SPEC --ios --headless`, or asks to execute a mobile test plan on an emulator/simulator.
-  - You need to verify E2E scenarios against the actual app codebase before driving adb or idb.
+  - You need to verify E2E scenarios against an App Map, live app, or available source before driving adb or idb.
   - You are writing or improving a spec's `test-plan.md` with agent-executable steps.
   - The user mentions test execution, e2e DSL, or running staging/QA verification on a device.
-  ALWAYS read this skill before executing `/test`. Do not skip codebase verification.
+  ALWAYS read this skill before executing `/test`. Use App Memory before source inspection.
 ---
 
 # Test Engine
 
-Orchestrates `/test` - but **never jump straight to a device**. First verify scenarios in the app codebase, post a short execution brief in chat, then execute immediately. `/test` is a run command; do not wait for a second confirmation.
+Orchestrates `/test`. First plan from the App Map, inspect source only for gaps
+or stale/conflicting memory, post a short execution brief, then execute
+immediately. `/test` is a run command; do not wait for a second confirmation.
 
 **Platform skills:**
 - Android (default): `device-interaction`
@@ -21,9 +23,30 @@ Orchestrates `/test` - but **never jump straight to a device**. First verify sce
 
 **Output conventions:** read `pack/templates/e2e.md` before writing anything under `specs/<SPEC>/runs/`.
 
-## Phase 0 - Codebase verification (mandatory before execution)
+**App Memory:** initialize and read
+`.tapwright-memory/<platform>/<package-or-bundle-id>/app-map.yaml` before any
+source inspection. Use a complete remembered route directly when its start
+markers match the current UI. After execution, merge verified nodes, edges, gates, app versions,
+hits, misses, confidence, and timestamps. Do not store coordinates, secrets,
+personal data, or dynamic content.
 
-For every E2E scenario in the test plan, trace the real implementation in the app source:
+```bash
+export TAPWRIGHT_MEMORY="$(pack/scripts/memory-path.sh <platform> <app-id>)"
+```
+
+```powershell
+$env:TAPWRIGHT_MEMORY = & "pack/scripts/memory-path.ps1" -Platform <platform> -AppId <app-id>
+```
+
+## Phase 0 - App Map and targeted verification
+
+Read matching App Map routes first. When a complete route covers a scenario and
+its start-screen markers match the live UI, use it without reading source code.
+For missing, stale, low-confidence, version-mismatched, or conflicting parts,
+trace only the affected section in the real app source when source is available.
+Without source, derive the same information from the App Map, test plan, and
+live UI. Missing source is not a blocker. Run the following checks only where
+source files exist:
 
 1. **Find the UI surface** - grep `string_globs` and screen definitions for the labels the scenario names.
 2. **Find entry navigation** - read files matched by `nav_globs`.
@@ -37,9 +60,11 @@ Document findings in a short **Execution brief** (format below). If the test pla
 
 A "gate" is any code condition that must hold for a step to be reachable. When a gate fails, the UI shows a different state - the agent must **stop and report blocked**, never guess coordinates. Record the gates you find per scenario so the run can recognize them in the dump. Encode recurring preconditions as `known_flows` setup steps in config.
 
-## Phase 1 - Execution brief (mandatory before device)
+## Phase 1 - Execution brief (mandatory before actions)
 
-Produce this brief in chat, then **start device execution immediately** - no approval gate:
+Use a read-only UI dump to check the remembered start markers when needed.
+Produce this brief in chat, then **start device actions immediately** - no
+approval gate:
 
 ```markdown
 ## /test <SPEC> - Execution brief
@@ -48,8 +73,8 @@ Produce this brief in chat, then **start device execution immediately** - no app
 - android (default) | ios (`--ios`)
 - iOS visibility: `visible` (default) | `headless` (`--headless`)
 
-### Codebase verification summary
-- [E-1] Entry: ... | Gate: ... | Strings (per locale): ...
+### Route summary
+- [E-1] Source: App Map | targeted code check | Entry: ... | Gate: ... | Strings: ...
 - [E-2] ...
 
 ### Accounts & setup
@@ -88,7 +113,10 @@ Follow `pack/workflows/test.md` and the platform device skill. **Few Shell calls
 
 ### Deadlock only (2 failed taps)
 
-Grep the source (strings → navigation → gates) → resume with code-backed labels. Promote the fix to the test plan. No VLM unless the dump is still ambiguous.
+When source exists, grep strings, navigation, and gates, then resume with
+code-backed labels. Without source, re-dump, inspect nearby stable targets, and
+promote the verified route to the App Map. No VLM unless the dump is still
+ambiguous.
 
 Platform setup:
 - **Android:** `device-interaction` + `adb-helpers.sh`
@@ -128,7 +156,9 @@ If a value appears only in `discovered:` and never in `vars:` bindings, the test
 
 ### Known deadlock patterns
 
-Maintain a per-app table (in your test plan or a project note) mapping a UI symptom to the code-backed fix, so future runs resolve it fast. When you resolve a new deadlock, add a row **and** update the spec's `test-plan.md`.
+Maintain a per-app table mapping a UI symptom to the verified App Map or
+code-backed fix, so future runs resolve it fast. When you resolve a new deadlock,
+update the App Map and the spec's `test-plan.md`.
 
 ### Figma comparison (UI-change specs)
 
@@ -145,10 +175,19 @@ After all scenarios (or a destructive scenario):
 2. **Exit the app:** Android `adb shell am force-stop <package_id>` / iOS `xcrun simctl terminate <UDID> <bundle_id>`.
 3. Record restore success in the report.
 
+## Phase 5 - Update App Memory
+
+Merge only what this run verified into the same App Map. Increase hits for paths
+that worked. Increase misses and reduce confidence for remembered paths that did
+not match the current app. Add newly observed gates, app versions, and timestamps
+even when a scenario was blocked. Never copy coordinates, raw dumps, screenshots,
+credentials, or dynamic test data into memory.
+
 ## Improving test plans
 
 When authoring or updating a spec's `test-plan.md`, each E2E scenario should include:
-- **Code reference** (file + condition)
+- **Code reference** (file + condition) when source exists; otherwise the App
+  Map route or live-only note
 - **Account/state precondition** and **setup steps** if state must be prepared
-- **Exact UI strings** (each locale in config)
+- **Exact UI strings** from source or verified live markers
 - **Negative gate** - what the agent should see when the precondition fails (stop, don't guess coordinates)

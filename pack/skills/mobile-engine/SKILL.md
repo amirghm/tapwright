@@ -63,6 +63,57 @@ least surprising mode and say which one you chose in the brief.
   interaction. Listing devices is fine; tapping, typing, launching, installing,
   clearing state, or reading private app data is not.
 
+## App Memory
+
+Every task must use the app-specific App Map before planning or touching the UI.
+
+1. Resolve the platform and app ID from `tapwright.config.yml`, the request, or
+   the selected app (`android.package_id` / `ios.bundle_id`). Never create memory
+   for placeholder values such as `com.example.app`; detect or ask for the real
+   installed app ID first.
+2. Initialize or locate the App Map:
+
+```bash
+export TAPWRIGHT_MEMORY="$(pack/scripts/memory-path.sh <platform> <app-id>)"
+```
+
+```powershell
+$env:TAPWRIGHT_MEMORY = & "pack/scripts/memory-path.ps1" -Platform <platform> -AppId <app-id>
+```
+
+3. Read the map before any source digging. If it contains a complete route for
+   the request and its start-screen markers match the live UI, use that route
+   directly. Do not inspect source code for steps the map already covers.
+   For a large map, search task keywords and load only the connected nodes and
+   edges needed for the request.
+4. When source code is available, inspect it only for missing edges,
+   stale/low-confidence entries, a changed app version, or a live UI conflict.
+   Keep that search limited to the gap.
+5. When no source code exists, continue from the live accessibility tree/UI dump
+   and update the map from verified interactions. Missing source is not a blocker.
+6. Validate remembered markers and selectors against the current dump before
+   every action. Memory is a hint, not proof.
+7. Read the installed app version when available. After the task, merge verified
+   screens, stable targets, transitions, gates, app versions, timestamps, hits,
+   misses, and confidence into the same map.
+
+The App Map lives at
+`.tapwright-memory/<platform>/<package-or-bundle-id>/app-map.yaml`. Never store
+coordinates, screenshots, raw dumps, secrets, credentials, personal data, or
+dynamic account content in memory. Keep those in the timestamped run folder when
+they are needed as evidence.
+
+### No-repo use
+
+tapwright does not require app source or a Git repo. Use the current working
+folder as the tapwright workspace. Resolve the app ID from the foreground app or
+installed-app list when possible. On Android, inspect the focused activity with
+`adb shell dumpsys window`; on iOS, use the configured/selected bundle from the
+Simulator app list. If several apps are plausible, ask one short question.
+
+With no source, plan from the App Map and live UI only. Create and improve the
+same per-app map after each request.
+
 ## Mode routing
 
 ### Non-E2E run folder
@@ -107,8 +158,9 @@ Minimum useful inspection:
 Route to `exec-engine` and the relevant platform skill. Preserve `/exec`
 semantics:
 
-1. Code dig first.
-2. Build a compact step plan.
+1. Build a compact step plan from a matching App Map route when available.
+2. Dig into code only for gaps or stale/conflicting memory when source exists;
+   otherwise fill gaps from the live UI.
 3. Execute with dump-first taps.
 4. Screenshot/VLM only when the dump is insufficient.
 5. Chat summary only unless scratch evidence is useful.
@@ -188,6 +240,7 @@ This is assisted review, not pixel-perfect visual regression.
   `.tapwright-run/<date>/<time>-<mode>/` when useful.
 - Simple automation can remain chat-only.
 - Never write passwords or secrets to artifacts.
+- App Memory is persistent project knowledge, separate from run artifacts.
 
 ## Safety
 

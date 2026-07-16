@@ -23,7 +23,7 @@ Keep scenarios concrete: name the exact UI strings, the account state, and the n
 | Surface | [screen / flow] |
 | Entry | [how to reach it - tab, deep link] |
 | Precondition | [account/app state required] |
-| Code reference | [file + condition that gates this] |
+| Code reference | [file + condition, App Map route, or live-only] |
 | Strings (per locale) | [exact labels the agent should grep for] |
 | Steps | 1. ... 2. ... 3. ... |
 | Assert | [what proves pass - text/pattern/intent] |

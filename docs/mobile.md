@@ -58,6 +58,19 @@ The rule of thumb is simple:
 4. Use screenshots for evidence or fallback.
 5. Stop when the app is gated or in the wrong state.
 
+## App Memory
+
+Every task reads and updates an App Map stored by platform and package or bundle
+ID. Verified screens and routes help later agents plan with less exploration,
+which improves accuracy and reduces token usage. The live UI is still checked
+before every remembered action.
+
+A complete matching route skips source inspection. If the map has gaps,
+tapwright checks source when it is available or learns the missing path from the
+live UI when it is not. A repo is helpful, not required.
+
+See [memory.md](memory.md) for the map structure and safety rules.
+
 ## Platforms
 
 - Android: `adb` + UIAutomator on emulators by default.
@@ -73,6 +86,7 @@ The rule of thumb is simple:
   gets a separate UTC-dated folder, and all evidence for that request stays
   together.
 - Simple automation can remain chat-only.
+- App Memory is persistent and separate from run evidence.
 
 ## Compatibility
 

@@ -7,7 +7,7 @@ description: Run ad-hoc natural-language tasks on a mobile app via Android emula
 **Goal:** Do a one-off task on a real emulator/simulator from plain English - log in, navigate, toggle a setting, complete a flow. No test plan or retained DSL. Scratch screenshots or dumps, when needed, go in a timestamped `.tapwright-run/` folder.
 
 **Priorities (in order):**
-1. **Code dig → step plan** before any taps (labels + nav from your app source, per `tapwright.config.yml`)
+1. **App Map → step plan** before any taps; inspect source only for missing or stale route parts
 2. **Speed** - batch taps, short sleeps, dump only when needed
 3. **Clean finish** - verify from dump, teardown, chat summary only
 
@@ -36,13 +36,18 @@ description: Run ad-hoc natural-language tasks on a mobile app via Android emula
 |---|---|---|
 | Input | a spec's `test-plan.md` | Your sentence |
 | Output | DSL + report | **Chat summary; optional scratch evidence** |
-| Prep | Full verification | **Focused code dig → step plan** (mandatory) |
+| Prep | App Map + targeted verification | **App Map → targeted dig if needed → step plan** |
 
 ---
 
-## Phase 0 - Code dig → step plan (mandatory, before taps)
+## Phase 0 - App Map → step plan (before taps)
 
-**Do this before the Phase 2 brief and before any UI interaction.** Dig in parallel with device boot/launch when possible.
+**Do this before the Phase 2 brief and before any UI interaction.** Read the
+per-app App Map first. If it contains a complete route and the current screen
+matches its start markers, use it directly and skip code inspection. Dig in
+parallel with device boot/launch only for missing, stale, low-confidence, or
+conflicting route parts when source is available. With no source, fill gaps from
+the live UI dump and save verified discoveries to the App Map.
 
 ### Dig targets (from `tapwright.config.yml`)
 
@@ -64,7 +69,9 @@ Numbered steps only, each with:
 3. **Label needles** to grep in dump (across `locales`)
 4. **Success signal** in next dump
 
-**Rules:** dig first, execute second. Do **not** invent coordinates from screenshots when the dig gave labels. Re-dig only after 2 failed taps on the same step.
+**Rules:** map first, targeted dig only when needed, then execute. Do **not**
+invent coordinates from screenshots. Re-dig only after 2 failed taps on the same
+step.
 
 ---
 
@@ -151,7 +158,7 @@ Template in the `exec-engine` skill. No credentials in notes.
 ```mermaid
 flowchart TD
     A["/exec NL"] --> B[Parse intent]
-    B --> C["Phase 0: dig source (config globs) → step plan"]
+    B --> C["Phase 0: App Map → targeted dig if needed → step plan"]
     C --> D[Brief with step plan]
     D --> E[Install/launch parallel with dig]
     E --> F["Execute: dump → planned labels → batch taps"]

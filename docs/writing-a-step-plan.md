@@ -18,14 +18,23 @@ Each step answers four questions:
 | **Needles** | What text identifies the target? | grep of `string_globs` (all `locales`) |
 | **Success** | How do I know it worked? | text expected in the next dump |
 
-## How the agent derives it (code dig)
+## How the agent derives it
+
+The agent checks the per-app App Map first. A complete route with matching live
+screen markers can be used directly without reading source code. The agent digs
+into code only for missing, stale, or conflicting route parts.
+
+When the App Map is incomplete and source exists:
 
 1. Extract keywords from the task or scenario ("account", "notifications", "checkout").
 2. Grep `string_globs` for those words → collect the exact label strings + resource keys.
 3. Grep `nav_globs` near those labels → establish the screen order.
 4. Assemble: entry tab → intermediate screens → target action → confirmation.
 
-Because the needles come from the real resource files, they match what the live UI dump
+Without source, the agent discovers the missing steps from stable labels and
+identifiers in the live UI, verifies each transition, and adds them to the map.
+
+When source exists, needles from real resource files match what the live UI dump
 contains - so the agent taps element bounds, not guessed coordinates.
 
 ## Example (login)

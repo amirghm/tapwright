@@ -12,7 +12,7 @@ description: |
 
 # Exec Engine
 
-Orchestrates `/exec`: **dig → step plan → fast execute → chat summary**.
+Orchestrates `/exec`: **App Map → targeted dig if needed → fast execute → chat summary**.
 
 **Device skills (do not duplicate recipes):**
 - Android: `device-interaction`
@@ -22,12 +22,29 @@ Orchestrates `/exec`: **dig → step plan → fast execute → chat summary**.
 
 **Config:** read `tapwright.config.yml` for source globs, package/bundle ids, launch/build commands, accounts, and `known_flows`. If absent, use built-in glob defaults and parse ids from the sentence (see `config-reference.md`).
 
+**App Memory:** initialize and read
+`.tapwright-memory/<platform>/<package-or-bundle-id>/app-map.yaml` before source
+digging. Prefer a remembered route when its markers match the live UI. After the
+task, merge verified screens, transitions, gates, hits, misses, confidence, and
+timestamps. Never store coordinates, secrets, personal data, or dynamic content.
+
+```bash
+export TAPWRIGHT_MEMORY="$(pack/scripts/memory-path.sh <platform> <app-id>)"
+```
+
+```powershell
+$env:TAPWRIGHT_MEMORY = & "pack/scripts/memory-path.ps1" -Platform <platform> -AppId <app-id>
+```
+
 ## Operating principles
 
-1. **Dig before tap** - grep the app source (`string_globs` + `nav_globs`) for labels + navigation; build a numbered step plan with label needles.
+1. **Map before dig** - use a complete matching App Map route without reading
+   source; inspect `string_globs` and `nav_globs` only for missing or stale parts
+   when source is available. With no source, learn from the live UI.
 2. **Execute, don't narrate** - brief once, then silent run until the summary (or blocked).
 3. **Speed** - batch taps; short sleeps; dump sparingly; VLM only when the dump/AX tree is empty.
 4. **Plan-driven dumps** - grep the dump for planned needles only; don't re-explore the whole tree each time.
+5. **Learn once** - reuse verified App Map routes and update them after every task.
 
 ## Natural-language parsing
 
@@ -40,9 +57,13 @@ Orchestrates `/exec`: **dig → step plan → fast execute → chat summary**.
 
 If the **task** is missing or ambiguous, ask one question, then proceed.
 
-## Phase 0 - Code dig → step plan (mandatory)
+## Phase 0 - App Map → step plan
 
-**Before any tap**, grep in parallel (and parallel with boot/launch), using globs from config:
+**Before any tap**, read the App Map and turn matching verified edges into the
+step plan. If the map has a complete route and its start markers match the live
+UI, skip source inspection. Otherwise grep only the missing, stale,
+low-confidence, or conflicting portion when source exists, in parallel with
+boot/launch. Without source, fill those gaps through dump-first live inspection:
 
 ```text
 # from tapwright.config.yml → string_globs
@@ -95,9 +116,12 @@ If the dump shows a state that blocks the plan (a disabled control, a "not avail
 2. Dismiss blockers immediately via dump labels (OS permission dialogs, ATT, notification sheets, "Allow"/"Don't Allow").
 3. For each plan step: dump → grep needles → tap center → batch next 2-5 in the same Shell when safe.
 4. Sleeps: **0.3-1s** tap-to-tap; **3-4s** after launch / login / save / network.
-5. Scroll once if a needle is missing; then micro-grep source; retry once.
+5. Scroll once if a needle is missing. Then micro-grep source when available, or
+   inspect nearby stable live targets when it is not; retry once.
 6. Verify **only** the plan's final success signal from the dump.
 7. VLM/screenshot: **only** if the dump has no usable labels - capture via the `screenshot` helper (`adb-helpers.sh` / `ios-helpers.sh`, <=540 long-edge). Never tap from the shrunk PNG when dump/AX has bounds.
+8. Update the App Map with verified nodes and edges. Record a miss or gate when
+   a remembered path failed; do not save guessed paths.
 
 ### Login (fast)
 
@@ -145,5 +169,5 @@ Blockers / follow-ups only if needed.
 | | `/exec` | `/test` |
 |---|---|---|
 | Input | Natural language | a spec's `test-plan.md` |
-| Prep | Focused dig → step plan | Full verification |
+| Prep | App Map + targeted dig if needed | App Map + targeted verification |
 | Artifacts | Optional `.tapwright-run/<date>/<time>-automate/` scratch evidence | DSL + report + resources |

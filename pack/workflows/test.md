@@ -6,7 +6,7 @@ description: Execute a spec's test-plan.md on an Android emulator or iOS simulat
 
 **Goal:** Take a spec's `test-plan.md` and run its E2E scenarios on a mobile emulator/simulator - resolving accounts, driving the UI, and recording each scenario as e2e DSL plus a report.
 
-**Read first:** the `test-engine` skill (codebase verification + brief), the platform device skill below, and `pack/templates/e2e.md` (output layout + run folders).
+**Read first:** the `test-engine` skill (App Map + targeted verification + brief), the platform device skill below, and `pack/templates/e2e.md` (output layout + run folders).
 
 | Platform | Device skill |
 |---|---|
@@ -126,7 +126,9 @@ Follow the test-plan step table. **Minimize Shell round-trips.**
 3. **Batch** the next 2-5 taps in one Shell block with `sleep 1` between (headless iOS or Android). Visible iOS: one tap per call, ~3s pause.
 4. **Assert** from dump text when possible; VLM on a checkpoint PNG only when the dump can't confirm.
 5. **Screenshot** only at checkpoints named in the test plan - save to `resources/` via the platform `screenshot` helper (auto-shrink <=540 long-edge + `.meta`). Taps from dump/AX, not from the shrunk image.
-6. **Stuck?** (element missing after scroll, wrong screen after 2 taps) → grep the source for the nav path, then continue. Don't loop dumps/screenshots without acting.
+6. **Stuck?** (element missing after scroll, wrong screen after 2 taps) → check
+   source for the nav path when available; otherwise inspect nearby live targets,
+   verify the route, and update the App Map. Don't loop dumps/screenshots without acting.
 
 ### Source-code fallback (deadlock only)
 

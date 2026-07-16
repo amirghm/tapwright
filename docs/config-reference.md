@@ -1,17 +1,21 @@
 # Config reference - `tapwright.config.yml`
 
-Place `tapwright.config.yml` at the root of your app repo. It tells the pack where to
-code-dig and how to build/launch your app. **Everything is optional** - with no config,
+Place `tapwright.config.yml` at the root of your working folder. It tells the pack
+where source lives, when available, and how to build/launch your app. **Everything is optional** - with no config,
 tapwright falls back to probing the string/nav globs below and expects you to pass
 package/bundle ids inline in your `/exec` sentence. Filling it in makes runs faster and
 deterministic.
+
+Source code is optional. With no app repo, tapwright uses the App Map and live UI
+instead of `string_globs` and `nav_globs`.
 
 Start from [`config/tapwright.config.example.yml`](../config/tapwright.config.example.yml).
 
 ## Fields
 
 ### `app_source_dir`
-Root directory the agent greps during Phase 0 (code dig). Default `./`.
+Root directory the agent greps when the App Map is missing a route or needs a
+stale path refreshed. Default `./`.
 
 ### `string_globs`
 Globs to the files that hold user-visible labels. Phase 0 greps these for exact CTA and
@@ -65,6 +69,9 @@ equivalents of "cancel account" or "reset onboarding".
 ## Zero-config behavior
 
 If `tapwright.config.yml` is absent, the agent:
-1. Uses the built-in `string_globs` / `nav_globs` defaults to dig.
-2. Asks for (or parses from your sentence) the package/bundle id and launch target.
-3. Skips `known_flows` and derives the plan entirely from source + dump.
+1. Reads the per-app App Map when an app ID is known.
+2. Detects the foreground package/bundle when possible, or asks one short
+   question when several apps are plausible.
+3. Uses built-in `string_globs` / `nav_globs` only when source files exist and
+   the App Map has a gap.
+4. Otherwise derives and verifies the plan from the App Map and live UI.

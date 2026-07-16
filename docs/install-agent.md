@@ -1,7 +1,8 @@
 # Install tapwright from an agent
 
 This page is for coding agents. If a user sends you this link, install tapwright
-into the current mobile app repo. Do not send the user a setup guide. Do the setup,
+into the current working folder. Use the mobile app repo when one exists, but do
+not require source code or Git. Do not send the user a setup guide. Do the setup,
 check what is available, and report only the result or the blocker.
 
 ## What tapwright installs
@@ -13,15 +14,17 @@ tapwright adds a small set of repo-local files:
 - Android `adb` helpers
 - iOS `simctl` / `idb` helpers
 - E2E report and DSL templates
+- per-app App Memory helpers
 - a starter `tapwright.config.yml`
 
 It does not install a daemon, SDK, model, or cloud service.
 
 ## Install steps for the agent
 
-1. Confirm you are in the user's mobile app repo.
+1. Use the user's mobile app repo when available. If there is no repo, use the
+   current folder as a standalone tapwright workspace.
 2. Download or clone tapwright to a temporary/cache location.
-3. Run the installer for the current OS with the app repo as the destination.
+3. Run the installer for the current OS with the working folder as the destination.
 
    macOS or Linux:
 
@@ -35,10 +38,13 @@ It does not install a daemon, SDK, model, or cloud service.
    powershell -ExecutionPolicy Bypass -File C:\path\to\tapwright\install.ps1 -Dest C:\path\to\mobile-app
    ```
 
-4. If `tapwright.config.yml` was created, fill as much as you can from the repo:
-   - Android `package_id`, `launch`, and install command/APK path
-   - iOS `bundle_id`, scheme/config/build command
-   - `string_globs`, `nav_globs`, and `locales`
+4. If `tapwright.config.yml` was created, fill as much as you can:
+   - Android `package_id` from source or the selected/foreground app
+   - iOS `bundle_id` from source or the selected Simulator app
+   - build/install commands and source globs only when source exists
+   - locales when known
+   App Maps are created on the first mobile request under
+   `.tapwright-memory/<platform>/<package-or-bundle-id>/`.
 5. Check mobile tooling yourself:
    - Android: `adb devices -l`
    - iOS on macOS: `xcrun simctl list devices available`, `which idb`
@@ -53,7 +59,7 @@ It does not install a daemon, SDK, model, or cloud service.
 
 ## Preferred install command
 
-Clone the repo, then run the installer from inside the user's app repo.
+Clone tapwright, then run the installer from the user's working folder.
 
 ```bash
 git clone https://github.com/amirghm/tapwright.git /tmp/tapwright

@@ -1,6 +1,9 @@
 # Getting started
 
-This gets tapwright installed in a mobile repo and runs a first `@mobile` request.
+This gets tapwright installed in a working folder and runs a first `@mobile` request.
+
+You can also use an empty folder when you only have a running app. Source code
+and Git are optional; tapwright can learn from the live UI and App Map alone.
 
 ## 1. Send the install link to your agent
 
@@ -42,7 +45,9 @@ In your agent:
 ```
 
 The agent selects an emulator or simulator, reads `tapwright.config.yml` if it exists, dumps the
-current UI tree, and summarizes what it found. It may save a small screenshot if that helps.
+current UI tree, and summarizes what it found. It also creates an App Map under
+`.tapwright-memory/<platform>/<app-id>/` so later requests can reuse what this
+task learned. It may save a small screenshot if that helps.
 
 ## 4. Ask it to do a job
 
@@ -79,5 +84,7 @@ Compatibility alias: `/test <SPEC>`
 - **Login without leaking secrets:** put the password in an env var and reference it via
   `accounts.default.password_env` in the config.
 - **Teach a recurring journey:** add it under `known_flows` so the agent skips re-deriving it.
+- **Reuse what agents discover:** keep `.tapwright-memory/` in the repo so later
+  agents and teammates can use the same verified App Map.
 - **When it gets stuck:** it re-greps your source after two failed taps; keep `string_globs`
   pointed at the right files to make that fast.

@@ -92,6 +92,8 @@ Use tapwright when the user runs `@mobile` or `/mobile`, or asks for mobile app 
 - Route ad-hoc automation through `$AgentDir/skills/exec-engine/SKILL.md`.
 - Route E2E specs through `$AgentDir/skills/test-engine/SKILL.md` and `$AgentDir/workflows/test.md`.
 - Use Android/iOS device recipes from `$AgentDir/skills/device-interaction*/SKILL.md`.
+- Before every task, read the per-app App Map under `.tapwright-memory/<platform>/<app-id>/app-map.yaml`; create it when missing and update it after the task.
+- Source code is optional. Use a complete matching App Map route directly; inspect code only for gaps when source exists, otherwise learn from the live UI.
 - Prefer emulators/simulators; ask before touching physical devices.
 - Resolve UI targets from dumps/accessibility trees before screenshots or coordinates.
 
@@ -166,5 +168,7 @@ Install-AgentAdapters
 
 Write-Host ""
 Write-Host "Done. Installed tapwright into $AgentDir."
+Write-Host "App Memory will be created per app under .tapwright-memory on the first request."
+Write-Host "Fill what you know in tapwright.config.yml. Source code is optional."
 Write-Host "Next request to try: @mobile what screen is my app showing?"
 Write-Host "If @mobile is not supported, use /mobile instead."

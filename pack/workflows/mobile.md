@@ -17,6 +17,9 @@ and E2E runs.
 | Ad-hoc automation | `exec-engine` / `/exec` behavior |
 | E2E execution | `test-engine` / `/test` behavior |
 
+Every route reads and updates the App Map under
+`.tapwright-memory/<platform>/<package-or-bundle-id>/app-map.yaml`.
+
 ## Usage
 
 ```text
@@ -68,6 +71,7 @@ Default platform: Android. Use iOS when the user says iOS/simulator or passes
 - One request uses one run folder. Reuse it for every screenshot, dump, log, and
   provisional DSL created for that request.
 - Simple automation can be chat-only.
+- App Memory is persistent and separate from timestamped run evidence.
 
 ## Flow
 

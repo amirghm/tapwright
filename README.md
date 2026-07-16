@@ -20,7 +20,7 @@
 Copy this and send it to your coding agent:
 
 ```text
-Install tapwright in this repo: https://raw.githubusercontent.com/amirghm/tapwright/main/docs/install-agent.md
+Install tapwright here: https://raw.githubusercontent.com/amirghm/tapwright/main/docs/install-agent.md
 ```
 
 That is it. The agent reads the page, installs the repo files, checks what mobile tools are
@@ -51,6 +51,19 @@ If your coding tool does not support `@mobile`, use `/mobile` instead.
 | Whether UI matches a design | `@mobile compare this screen with the design` |
 | Turn a repeated flow into a test | `@mobile record the onboarding flow` |
 | Run a saved E2E plan | `@mobile test CHECKOUT` |
+
+## Remembers Your App
+
+Every request teaches tapwright a little more about your app. It builds an App
+Map for each package or bundle ID, remembering verified screens, controls,
+routes, and gates.
+
+The next agent can start from that map instead of exploring the same screens
+again. That makes automation and E2E runs more accurate, faster, and lighter on
+tokens. Remembered paths are always checked against the live app before use.
+
+No source code? It can build the map from the app running on an emulator,
+Simulator, or an explicitly approved connected device.
 
 ## For Development And E2E
 
@@ -87,10 +100,12 @@ No new test runner to learn before you can try it.
 
 ## Why It Works
 
-tapwright gives your agent a simple rule: read the app first, then tap.
+tapwright gives your agent a simple rule: check the App Map, then tap.
 
-Instead of guessing from screenshots, it looks at app strings, navigation files, and the live UI tree.
-Then it taps real elements and uses screenshots only when they help.
+When it already knows a verified route, it skips reading the code and checks the
+route against the live UI tree. It looks at app strings and navigation files only
+when the map has a gap or the app has changed. Then it taps real elements and
+uses screenshots only when they help.
 
 ## Platforms
 
@@ -102,6 +117,7 @@ Then it taps real elements and uses screenshots only when they help.
 
 - [Agent install page](docs/install-agent.md)
 - [`@mobile` examples and modes](docs/mobile.md)
+- [App Memory and App Maps](docs/memory.md)
 - [Getting started](docs/getting-started.md)
 - [Config reference](docs/config-reference.md)
 - [Supported stacks](docs/supported-stacks.md)

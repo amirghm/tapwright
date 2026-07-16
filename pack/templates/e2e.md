@@ -72,7 +72,8 @@ Screenshot paths in DSL are **relative to the run folder**: `resources/<file>.pn
 
 1. Dump → grep → tap → **batch** taps with `sleep` (one Shell call when headless).
 2. Assert from the dump; VLM only on a checkpoint PNG if the dump is insufficient.
-3. Stuck after 2 taps → grep the app source, resume.
+3. Stuck after 2 taps → check app source when available; otherwise recover from
+   the live UI and update the App Map.
 4. **After** the scenario → write DSL. After the full run → `test-report.md` + teardown.
 
 ---
