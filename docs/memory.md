@@ -29,13 +29,13 @@ tokens, personal data, or dynamic account content.
 3. Read the map before searching source code or exploring the UI.
 4. If a complete route exists and its start markers match, use it directly and
    skip source inspection.
-5. Search code only for missing, stale, low-confidence, version-mismatched, or
-   conflicting parts of the route, and only when source code is available.
-6. Validate every remembered screen and target against the live UI.
-7. Merge newly verified nodes, edges, and gates after the task.
-8. Ingest new test plans, edited scenarios, config/source discoveries, and other
+5. Discover missing steps from the live UI.
+6. Search code only when the map and live UI cannot resolve a target.
+7. Validate every remembered screen and target against the live UI.
+8. Merge newly verified nodes, edges, and gates after the task.
+9. Ingest new test plans, edited scenarios, config/source discoveries, and other
    stable route data immediately as unverified candidates.
-9. Record failed remembered paths so confidence can fall instead of repeating a
+10. Record failed remembered paths so confidence can fall instead of repeating a
    bad route.
 
 Memory guides execution but never overrides the live accessibility tree or UI

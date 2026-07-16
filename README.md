@@ -35,8 +35,7 @@ Update tapwright here: https://raw.githubusercontent.com/amirghm/tapwright/main/
 ## What You Can Ask
 
 ```text
-@mobile build a beautiful daily planner and verify its main flow
-@mobile fix the checkout screen and test it on Android
+@mobile open YBee, enter a detailed prompt for a daily planner, and verify the result
 @mobile log in with the QA account and find the subscription settings
 @mobile check if a new user can skip onboarding and reach the home screen
 @mobile open the latest order and tell me if the refund button is available
@@ -51,7 +50,7 @@ If your coding tool does not support `@mobile`, use `/mobile` instead.
 
 | You want to know | Ask |
 |---|---|
-| Build or change the app and verify it | `@mobile add a daily planner and test the main flow` |
+| Create something inside an app | `@mobile open YBee, create a daily planner, and verify the result` |
 | What screen is open right now | `@mobile what screen is my app showing?` |
 | Whether a flow still works | `@mobile check if checkout still works` |
 | Where something lives in the app | `@mobile find the billing settings` |
@@ -82,7 +81,7 @@ Simulator, or an explicitly approved connected device.
 When you are building a feature, `@mobile` can act like the mobile check at the end of the task.
 
 ```text
-@mobile implement the new profile screen, launch it, and fix anything broken
+@mobile test the new profile screen I just implemented
 @mobile test the login changes I just made
 @mobile run the checkout plan on Android
 @mobile run the checkout plan on iOS, visible, so I can watch

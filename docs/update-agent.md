@@ -10,8 +10,8 @@ without asking the user to perform setup steps.
    a stale cached checkout.
 3. Record the short commit hash from the fresh checkout.
 4. Run the installer with the current working folder as `--dest` / `-Dest`.
-5. Verify that the installed `mobile-engine` skill contains the execution
-   contract and that `@mobile` or `/mobile` is available.
+5. Verify that the installed `mobile` skill exists, the old mobile workflow is
+   gone, and `@mobile` or `/mobile` is available.
 6. Report the installed commit and any missing mobile prerequisites.
 
 macOS or Linux:

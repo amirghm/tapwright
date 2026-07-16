@@ -1,16 +1,15 @@
 ---
-name: mobile-engine
+name: mobile
 description: |
-  Routing engine for the tapwright @mobile workflow. Use this skill whenever the
-  user runs @mobile or /mobile, references mobile.md as an execution workflow,
-  or asks an agent to build, change, inspect, automate, manually test, debug,
+  Primary tapwright @mobile skill. Use this skill whenever the user runs @mobile
+  or /mobile, or asks an agent to inspect, automate, manually test, debug,
   record, replay, compare, or run E2E flows on an Android
   emulator/device or iOS Simulator. This skill routes to the existing
   exec-engine, test-engine, device-interaction, and device-interaction-ios
   skills; it is not a separate runtime, daemon, SDK, or MCP server.
 ---
 
-# mobile-engine
+# mobile
 
 `@mobile` is the main tapwright entrypoint for mobile work. Use it to inspect a
 real app screen, act on it, verify the result, and save evidence when useful.
@@ -25,35 +24,21 @@ It is a **router skill**. Do not duplicate platform recipes here:
 ## User mental model
 
 `@mobile` is the primary experience. If the coding tool does not recognize it,
-the user can type `/mobile` instead. `mobile-engine` is only the helper skill
-behind both forms, so command pickers do not show two different `mobile` entries.
+the user can type `/mobile` instead. There is one `mobile` skill and no separate
+mobile workflow, so command pickers show one entry.
 
-## Execution contract
+## Execution boundary
 
-`@mobile`, `/mobile`, and explicit requests to use `mobile.md` are action
-requests. Perform the work in the current workspace. Do not answer with a prompt
-for another agent, a rewritten version of the request, or a plan without
-execution.
+`@mobile` operates the app running on an emulator, Simulator, or approved
+physical device. It does not modify the host app's source code unless the user
+explicitly asks to edit source code.
 
-When the user asks to create, build, implement, redesign, fix, or change the app:
-
-1. Inspect the current workspace and existing app architecture.
-2. Implement the requested code and assets using the repo's conventions.
-3. Build/install and launch the app.
-4. Use the relevant device skill to inspect and exercise the changed UI.
-5. Fix issues found during verification and repeat until the requested result is
-   working or a real blocker remains.
-6. Report the completed work and verification, not a prompt the user must send
-   elsewhere.
-
-Only generate a reusable prompt when the user explicitly says `prompt-only` or
-`do not implement`. When an executable build request and prompt wording appear
-together, execution wins.
+When the user asks to create something inside an app, launch that app and do it
+through the live UI. If the action needs text, compose it in working memory and
+enter it into the app. Do not edit source or return the text in chat instead.
 
 ```text
 @mobile inspect
-@mobile build a daily planner in this app and test its main flow
-@mobile fix the checkout screen and verify it on Android
 @mobile log in as qa@example.com and open Settings
 @mobile manual test the checkout screen
 @mobile test CHECKOUT --ios --headless
@@ -70,9 +55,8 @@ least surprising mode and say which one you chose in the brief.
 
 | Mode | Triggers | Output |
 |---|---|---|
-| `build` | create, build, implement, redesign, fix, change, add | Code changes + launched app + mobile verification |
 | `inspect` | inspect, current screen, what do you see, screenshot, dump | Chat summary; optional timestamped evidence |
-| `automate` | automate, do, complete, open, log in, navigate, toggle | Same behavior as `/exec`; chat summary by default |
+| `automate` | automate, do, complete, open, create inside app, enter, submit, log in, navigate, toggle | Same behavior as `/exec`; chat summary by default |
 | `manual` | manual test, guide me, step by step, watch it | One action/checkpoint at a time; chat summary |
 | `test` | test, e2e, spec, `test-plan.md`, `/test` | Same behavior as `/test`; report + DSL |
 | `debug` | debug, logs, stuck, failed, why | Logs + dump + screenshot summary; optional scratch evidence |
@@ -114,11 +98,10 @@ $env:TAPWRIGHT_MEMORY = & "pack/scripts/memory-path.ps1" -Platform <platform> -A
    directly. Do not inspect source code for steps the map already covers.
    For a large map, search task keywords and load only the connected nodes and
    edges needed for the request.
-4. When source code is available, inspect it only for missing edges,
-   stale/low-confidence entries, a changed app version, or a live UI conflict.
-   Keep that search limited to the gap.
-5. When no source code exists, continue from the live accessibility tree/UI dump
-   and update the map from verified interactions. Missing source is not a blocker.
+4. If memory has no route, inspect the live UI and discover it there.
+5. Inspect source only when the App Map and live UI cannot resolve a target or
+   when the user explicitly asks for source work. Keep that search limited to
+   the unresolved step. Missing source is not a blocker.
 6. Validate remembered markers and selectors against the current dump before
    every action. Memory is a hint, not proof.
 7. Read the installed app version when available. After the task, merge verified
@@ -176,21 +159,6 @@ If a folder already exists for the same second, the helper adds `-2`, `-3`, and
 so on. Do not create a new folder for every action or screenshot in the same
 request.
 
-### build
-
-Use the coding agent's normal repository tools to implement the request first.
-The mobile skills are the verification loop, not a substitute for editing code.
-
-1. Read the existing app structure and choose its established implementation
-   patterns. If the folder has no app source, ask one blocking question about
-   where or which stack to create; do not invent a throwaway stack silently.
-2. Implement a usable end-to-end result, not a mock prompt or static description.
-3. Run the repo's focused build/tests.
-4. Install and launch on the requested emulator/Simulator.
-5. Inspect the live UI, exercise the main requested flow, and fix regressions.
-6. Update App Memory only with live-verified screens and routes; keep unverified
-   planned flows as candidates.
-
 ### inspect
 
 Read `tapwright.config.yml` if present, then use the platform device skill.
@@ -211,8 +179,8 @@ Route to `exec-engine` and the relevant platform skill. Preserve `/exec`
 semantics:
 
 1. Build a compact step plan from a matching App Map route when available.
-2. Dig into code only for gaps or stale/conflicting memory when source exists;
-   otherwise fill gaps from the live UI.
+2. Fill gaps from the live UI. Use source only if the live UI cannot resolve a
+   target.
 3. Execute with dump-first taps.
 4. Screenshot/VLM only when the dump is insufficient.
 5. Chat summary only unless scratch evidence is useful.

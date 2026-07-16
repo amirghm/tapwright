@@ -23,10 +23,10 @@ Each step answers four questions:
 ## How the agent derives it
 
 The agent checks the per-app App Map first. A complete route with matching live
-screen markers can be used directly without reading source code. The agent digs
-into code only for missing, stale, or conflicting route parts.
+screen markers can be used directly without reading source code. Missing steps
+come from the live UI. Source is a fallback for unresolved targets.
 
-When the App Map is incomplete and source exists:
+When the App Map and live UI cannot resolve a target and source exists:
 
 1. Extract keywords from the task or scenario ("account", "notifications", "checkout").
 2. Grep `string_globs` for those words → collect the exact label strings + resource keys.

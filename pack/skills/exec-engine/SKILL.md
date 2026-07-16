@@ -12,7 +12,7 @@ description: |
 
 # Exec Engine
 
-Orchestrates `/exec`: **App Map → targeted dig if needed → fast execute → chat summary**.
+Orchestrates `/exec`: **App Map → live UI → source fallback → chat summary**.
 
 **Device skills (do not duplicate recipes):**
 - Android: `device-interaction`
@@ -39,9 +39,9 @@ $env:TAPWRIGHT_MEMORY = & "pack/scripts/memory-path.ps1" -Platform <platform> -A
 
 ## Operating principles
 
-1. **Map before dig** - use a complete matching App Map route without reading
-   source; inspect `string_globs` and `nav_globs` only for missing or stale parts
-   when source is available. With no source, learn from the live UI.
+1. **Map, then live UI** - use a matching App Map route first; discover missing
+   steps from the running app. Read source only when a live target cannot be
+   resolved.
 2. **Execute, don't narrate** - brief once, then silent run until the summary (or blocked).
 3. **Speed** - batch taps; short sleeps; dump sparingly; VLM only when the dump/AX tree is empty.
 4. **Plan-driven dumps** - grep the dump for planned needles only; don't re-explore the whole tree each time.
@@ -61,34 +61,13 @@ If the **task** is missing or ambiguous, ask one question, then proceed.
 ## Phase 0 - App Map → step plan
 
 **Before any tap**, read the App Map and turn matching verified edges into the
-step plan. If the map has a complete route and its start markers match the live
-UI, skip source inspection. Otherwise grep only the missing, stale,
-low-confidence, or conflicting portion when source exists, in parallel with
-boot/launch. Without source, fill those gaps through dump-first live inspection:
+step plan. If the route is incomplete, launch the app and inspect the live UI.
+Do not read source yet. Use source only after the map, one UI dump, and one
+targeted scroll cannot resolve the next action.
 
-```text
-# from tapwright.config.yml → string_globs
-**/res/values*/strings.xml
-**/composeResources/values*/strings.xml
-**/*.xcstrings
-**/locales/**/*.json
-# from tapwright.config.yml → nav_globs
-**/*Navigation*.kt   **/*NavGraph*.kt   **/*Routes*.*
-```
+## Source fallback for an unresolved target
 
-Grep those files for the words in the task to find exact label strings (and their keys), then expand to a **step plan**:
-
-| # | Screen | Action | Dump needles (per locale) | Success |
-|---|---|---|---|---|
-| 1 | ... | tap/type/scroll | exact strings from dig | next title / gate |
-
-Include every locale variant the app might show (from `locales`). Keep the plan in memory - **no repo files**.
-
-Re-dig mid-run only after **2 failed taps** on the same step.
-
-## Intent → dig-hint mechanism (generic)
-
-tapwright ships **no** app-specific intent table. Derive dig hints from the sentence:
+Only after live resolution fails, derive a small source search from the sentence:
 
 1. **Extract keywords** from the task ("log in", "settings", "notifications", "checkout", "cancel").
 2. **Grep `string_globs`** for those keywords (and obvious synonyms) → collect matching label strings + resource keys.

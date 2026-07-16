@@ -72,6 +72,6 @@ If `tapwright.config.yml` is absent, the agent:
 1. Reads the per-app App Map when an app ID is known.
 2. Detects the foreground package/bundle when possible, or asks one short
    question when several apps are plausible.
-3. Uses built-in `string_globs` / `nav_globs` only when source files exist and
-   the App Map has a gap.
-4. Otherwise derives and verifies the plan from the App Map and live UI.
+3. Derives and verifies the plan from the App Map and live UI.
+4. Uses built-in `string_globs` / `nav_globs` only when a live target remains
+   unresolved and source files exist.

@@ -45,6 +45,17 @@ fi
 echo "tapwright: installing into $DEST/$AGENT_DIR"
 mkdir -p "$AGENT_DIR/workflows" "$AGENT_DIR/skills" "$AGENT_DIR/scripts" "$AGENT_DIR/templates"
 
+# Remove the retired tapwright mobile workflow/helper skill from older installs.
+legacy_workflow="$AGENT_DIR/workflows/mobile.md"
+if [[ -f "$legacy_workflow" ]] && grep -q 'mobile-engine' "$legacy_workflow"; then
+  rm -f "$legacy_workflow"
+fi
+legacy_skill="$AGENT_DIR/skills/mobile-engine/SKILL.md"
+if [[ -f "$legacy_skill" ]] && grep -q '^name: mobile-engine$' "$legacy_skill"; then
+  rm -f "$legacy_skill"
+  rmdir "$AGENT_DIR/skills/mobile-engine" 2>/dev/null || true
+fi
+
 cp -R "$PACK/workflows/." "$AGENT_DIR/workflows/"
 for skill_dir in "$PACK/skills"/*; do
   [[ -d "$skill_dir" && -f "$skill_dir/SKILL.md" ]] || continue
@@ -89,18 +100,18 @@ append_agents_block() {
 
 ## tapwright mobile
 
-Use tapwright when the user runs \`@mobile\` or \`/mobile\`, explicitly asks to use \`mobile.md\`, or asks for mobile app building/changes, inspection, automation, manual UI testing, debugging, E2E execution, recording, replay, or screenshot/design comparison.
+Use tapwright when the user runs \`@mobile\` or \`/mobile\`, or asks for mobile app inspection, automation, manual UI testing, debugging, E2E execution, recording, replay, or screenshot/design comparison.
 
 - Primary experience: \`@mobile\`.
 - If the coding tool does not support \`@mobile\`, use \`/mobile\` instead.
-- Read \`$AGENT_DIR/skills/mobile-engine/SKILL.md\` before acting.
-- Treat mobile requests as executable work. For build/create/fix/change requests, edit the app and verify it on a device; never return a prompt for another agent unless the user explicitly says prompt-only or do not implement.
+- Read \`$AGENT_DIR/skills/mobile/SKILL.md\` before acting.
+- \`@mobile\` controls the running app. If the user asks to create something inside an app, do it through that app's live UI; edit source only when explicitly requested.
 - Route ad-hoc automation through \`$AGENT_DIR/skills/exec-engine/SKILL.md\`.
 - Route E2E specs through \`$AGENT_DIR/skills/test-engine/SKILL.md\` and \`$AGENT_DIR/workflows/test.md\`.
 - Use Android/iOS device recipes from \`$AGENT_DIR/skills/device-interaction*/SKILL.md\`.
 - Before every task, read the per-app App Map under \`.tapwright-memory/<platform>/<app-id>/app-map.yaml\`; create it when missing and update it after the task.
 - New tests and stable app data update map candidates immediately; only live-verified routes become trusted edges.
-- Source code is optional. Use a complete matching App Map route directly; inspect code only for gaps when source exists, otherwise learn from the live UI.
+- Source code is optional. Use the App Map first, then the live UI; inspect source only when a target remains unresolved.
 - Prefer emulators/simulators; ask before touching physical devices.
 - Resolve UI targets from dumps/accessibility trees before screenshots or coordinates.
 
@@ -132,7 +143,7 @@ install_agent_adapters() {
     write_file_if_missing_or_tapwright_owned \
       ".claude/commands/mobile.md" \
       "tapwright:generated" \
-      "---"$'\n'"description: tapwright mobile for app building/changes, Android/iOS inspection, automation, manual testing, debugging, recording, replay, compare, and E2E."$'\n'"---"$'\n\n'"<!-- tapwright:generated -->"$'\n\n'"Read \`$AGENT_DIR/skills/mobile-engine/SKILL.md\` and follow \`$AGENT_DIR/workflows/mobile.md\`. Treat the rest as executable @mobile work, not a request to write a prompt."
+      "---"$'\n'"description: tapwright mobile for Android/iOS inspection, automation, manual testing, debugging, recording, replay, compare, and E2E."$'\n'"---"$'\n\n'"<!-- tapwright:generated -->"$'\n\n'"Read \`$AGENT_DIR/skills/mobile/SKILL.md\` and execute the rest as a mobile request. Control the running app; do not edit source unless explicitly requested."
   fi
 
   if [[ "$AGENT_DIR" == ".cursor" || -d .cursor ]]; then
@@ -140,7 +151,7 @@ install_agent_adapters() {
     write_file_if_missing_or_tapwright_owned \
       ".cursor/rules/tapwright-mobile.mdc" \
       "tapwright:generated" \
-      "---"$'\n'"description: Use tapwright @mobile for app building/changes, mobile inspection, automation, manual testing, debugging, recording, replay, compare, and E2E."$'\n'"alwaysApply: false"$'\n'"---"$'\n\n'"<!-- tapwright:generated -->"$'\n\n'"When the user runs @mobile or /mobile, references mobile.md, or asks to build/control/test a mobile app, read \`$AGENT_DIR/skills/mobile-engine/SKILL.md\` and follow \`$AGENT_DIR/workflows/mobile.md\`. Execute the work instead of returning a prompt. Prefer emulators/simulators and ask before touching physical devices."
+      "---"$'\n'"description: Use tapwright @mobile for mobile inspection, automation, manual testing, debugging, recording, replay, compare, and E2E."$'\n'"alwaysApply: false"$'\n'"---"$'\n\n'"<!-- tapwright:generated -->"$'\n\n'"When the user runs @mobile or /mobile, read \`$AGENT_DIR/skills/mobile/SKILL.md\`. Control the running app; do not edit source unless explicitly requested. Prefer emulators/simulators and ask before touching physical devices."
   fi
 
   if [[ -d .opencode ]]; then
@@ -148,7 +159,7 @@ install_agent_adapters() {
     write_file_if_missing_or_tapwright_owned \
       ".opencode/agents/mobile.md" \
       "tapwright:generated" \
-      "---"$'\n'"description: tapwright mobile agent for app building/changes, Android/iOS inspection, automation, manual testing, debugging, recording, replay, compare, and E2E."$'\n'"---"$'\n\n'"<!-- tapwright:generated -->"$'\n\n'"You are the tapwright mobile agent. Read \`$AGENT_DIR/skills/mobile-engine/SKILL.md\`, then execute the request using the repo, workflows, and device skills under \`$AGENT_DIR\`. Do not return a prompt for another agent. Prefer emulators/simulators; ask before touching physical devices."
+      "---"$'\n'"description: tapwright mobile agent for Android/iOS inspection, automation, manual testing, debugging, recording, replay, compare, and E2E."$'\n'"---"$'\n\n'"<!-- tapwright:generated -->"$'\n\n'"Read \`$AGENT_DIR/skills/mobile/SKILL.md\`, then control the running app with the installed device skills. Do not edit source unless explicitly requested. Prefer emulators/simulators; ask before touching physical devices."
   fi
 
   if [[ -d .github ]]; then
@@ -158,7 +169,7 @@ install_agent_adapters() {
 
 ## tapwright mobile
 
-For \`@mobile\`, \`/mobile\`, \`mobile.md\`, mobile app building/changes, inspection, automation, debugging, manual UI testing, record/replay, compare, or E2E requests, use the tapwright pack installed under \`$AGENT_DIR\`. Read \`$AGENT_DIR/skills/mobile-engine/SKILL.md\` first and execute the work instead of returning a prompt. Prefer emulators/simulators and ask before interacting with physical devices.
+For \`@mobile\`, \`/mobile\`, mobile app inspection, automation, debugging, manual UI testing, record/replay, compare, or E2E requests, read \`$AGENT_DIR/skills/mobile/SKILL.md\` and control the running app. Do not edit source unless explicitly requested. Prefer emulators/simulators and ask before interacting with physical devices.
 
 <!-- tapwright:mobile end -->
 EOF
@@ -178,8 +189,8 @@ install_agent_adapters
 cat <<EOF
 
 Done. Installed:
-  $AGENT_DIR/workflows/{mobile.md,exec.md,test.md}
-  $AGENT_DIR/skills/{mobile-engine,exec-engine,test-engine,device-interaction,device-interaction-ios}
+  $AGENT_DIR/workflows/{exec.md,test.md}
+  $AGENT_DIR/skills/{mobile,exec-engine,test-engine,device-interaction,device-interaction-ios}
   $AGENT_DIR/scripts/*.sh
   $AGENT_DIR/templates/*
   AGENTS.md tapwright mobile block

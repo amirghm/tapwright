@@ -1,5 +1,5 @@
 param(
-  [ValidateSet("build", "inspect", "automate", "manual", "debug", "record", "replay", "compare", "run")]
+  [ValidateSet("inspect", "automate", "manual", "debug", "record", "replay", "compare", "run")]
   [string]$Mode = "run",
   [string]$Root = ".tapwright-run"
 )
