@@ -1,0 +1,6 @@
+.DS_Store
+**/.DS_Store
+*.log
+
+# Local runs / scratch that /exec or /test may leave in a consuming repo
+.tapwright-run/

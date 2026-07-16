@@ -1,0 +1,81 @@
+# e2e DSL - tool-agnostic recording of an executed test scenario.
+#
+# Purpose: capture a /test run as ordered steps a human can read AND that maps
+# onto future UI Automator / XCUITest / Compose tests. One file per scenario.
+#
+# Output location (per run):
+#   specs/<SPEC>/runs/android/<run_id>/test-report.md
+#   specs/<SPEC>/runs/android/<run_id>/e-<n>-<slug>.dsl.yaml
+#   specs/<SPEC>/runs/android/<run_id>/resources/<checkpoint>.png
+#   specs/<SPEC>/runs/ios/<run_id>/...   (same layout for iOS)
+#
+# Patterns catalog: e2e-patterns.yaml
+#
+# ── Dynamic data rule (important) ─────────────────────────────────────────────
+# Do NOT hardcode values that change over time or by account/market:
+#   AVOID: date labels, amounts/prices, dynamic copy, survey text
+#   USE:   stable navigation (string keys, nav tabs), structural sections, intents
+#   USE:   discover steps that resolve UI at runtime -> bind vars.* -> use later
+#   USE:   discovered: block records what was found (audit trail); optional for replay
+#
+# Conversion contract:
+#   selector.by = "res"         -> By.res / onNodeWithTag / accessibilityIdentifier
+#   selector.by = "text"        -> By.text / onNodeWithText (stable copy only)
+#   selector.by = "string_key"  -> resolve from string resources (each locale)
+#   selector.by = "nav_tab"     -> bottom nav semantic id (home, search, account, ...)
+#   selector.by = "desc"        -> content description / AXLabel
+#   value: "${vars.name}"       -> runtime binding from a discover step
+#   assert.intent = A-pos       -> rule from e2e-patterns.yaml intents section
+#   assert.vlm = resources/...  -> optional; only when the dump cannot confirm
+
+meta:
+  spec: <SPEC>
+  run_id: YYYY-MM-DDTHH-mm-ssZ
+  scenario: <human-readable scenario name>
+  source_test_plan: specs/<SPEC>/test-plan.md
+  patterns: e2e-patterns.yaml
+  platform: android                    # android | ios
+  app_id: com.example.app              # android.package_id or ios.bundle_id
+  simulator_visibility: visible        # ios: visible (default) | headless (--headless)
+  environment: staging
+  device:
+    type: emulator                     # emulator | simulator
+    serial: emulator-5554              # Android
+    # udid: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX  # iOS
+  account:
+    source: config                     # config | test-plan | ad-hoc
+    email: qa@example.com
+  executed_at: 2026-07-15T00:00:00Z
+  result: pass
+
+# Runtime bindings (inputs to steps). Populated by discover actions - not hand-authored.
+vars: {}
+
+# What the agent actually found on this run (audit / debug). NOT required for replay.
+discovered: {}
+
+# Ordered steps.
+# action: launch | tap | swipe | type | key | wait | discover | assert
+steps:
+  - id: 1
+    action: launch
+    target: com.example.app/.MainActivity   # android.launch (or simctl launch bundle for ios)
+    wait_ms: 4000
+
+  - id: 2
+    action: tap
+    selector: { by: nav_tab, value: account }
+    wait_ms: 2000
+
+  - id: 3
+    action: tap
+    selector: { by: string_key, value: account_settings_title }
+    wait_ms: 2000
+
+  - id: 4
+    action: assert
+    selector: { by: text_any, values: [Settings, Einstellungen] }
+    expect: visible
+    screenshot: resources/checkpoint-settings.png
+
+manual_steps: []

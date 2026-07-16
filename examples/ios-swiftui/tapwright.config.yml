@@ -1,0 +1,29 @@
+# Example: an iOS SwiftUI app (macOS host, Simulator).
+# Copy to your app repo root as tapwright.config.yml and adjust ids/paths.
+
+app_source_dir: ./
+
+string_globs:
+  - "**/*.xcstrings"      # String Catalogs (Xcode 15+)
+  - "**/*.strings"        # Localizable.strings
+
+nav_globs:
+  - "**/*Coordinator*.swift"
+  - "**/*Router*.swift"
+  - "**/*View.swift"
+
+locales: [en]
+
+ios:
+  bundle_id: com.example.shop
+  scheme: ShopDebug
+  config: Debug
+  build: >
+    xcodebuild -project Shop.xcodeproj -scheme ShopDebug -configuration Debug
+    -destination 'platform=iOS Simulator,name=iPhone 16'
+    -derivedDataPath ./build/DerivedData build
+
+accounts:
+  default:
+    email: qa@example.com
+    password_env: TAPWRIGHT_QA_PASSWORD

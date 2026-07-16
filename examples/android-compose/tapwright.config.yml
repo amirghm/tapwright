@@ -1,0 +1,32 @@
+# Example: an Android app (Jetpack Compose or KMP/Compose Multiplatform).
+# Copy to your app repo root as tapwright.config.yml and adjust ids/paths.
+
+app_source_dir: ./
+
+string_globs:
+  - "**/src/main/res/values*/strings.xml"      # native Android
+  - "**/composeResources/values*/strings.xml"  # Compose Multiplatform (if KMP)
+
+nav_globs:
+  - "**/*Navigation*.kt"
+  - "**/*NavHost*.kt"
+  - "**/*NavGraph*.kt"
+
+locales: [en, de]
+
+android:
+  package_id: com.example.shop.debug
+  launch: com.example.shop.debug/com.example.shop.MainActivity
+  install: "./gradlew :app:installDebug"
+
+accounts:
+  default:
+    email: qa@example.com
+    password_env: TAPWRIGHT_QA_PASSWORD
+
+known_flows:
+  login:
+    - { screen: Welcome, action: tap, needles: [Log in, Anmelden], success: Email }
+    - { action: type, field_needles: [Email, E-Mail], value: "${accounts.default.email}" }
+    - { action: type, field_needles: [Password, Passwort], value: "${accounts.default.password}" }
+    - { action: key, key: enter, success: Home }

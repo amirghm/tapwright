@@ -1,0 +1,52 @@
+# Reusable assertion / discovery patterns for e2e DSL.
+# Reference from steps via intent id or pattern name - never hardcode volatile UI data.
+#
+# The entries below are EXAMPLES. Adapt them to your app: add the regexes, sections,
+# and intents your scenarios actually assert on. The structure is what matters.
+
+patterns:
+  price_amount:
+    description: A localized currency amount (e.g. +1,99 €, $2.49, £1.00)
+    match: text_regex
+    regex: '[€$£]\s?[\d.,]+|[\d.,]+\s?[€$£]'
+
+  weekday_chip:
+    description: Short weekday label (Mon-Sun); stable across many locales
+    match: text_regex
+    regex: '^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)$'
+
+  disabled_state:
+    description: A control/label indicating the target is not currently actionable
+    match: text_any
+    values: [Unavailable, Not available, Disabled]
+
+sections:
+  # A named region of a screen, anchored by a stable header/label. Steps and
+  # discovery scope their search to a section to avoid false matches elsewhere.
+  main_list:
+    anchor: { by: string_key, value: <your_section_header_key> }
+    fallback_text_any: [<English header>, <localized header>]
+
+discovery:
+  # Resolve a value at runtime instead of hardcoding it. Bind the result to vars.*
+  first_actionable_item:
+    target: list_item
+    within: main_list
+    pick: first
+    note: Tap the first visible actionable item in the section
+
+intents:
+  # Named assertion rules referenced by steps (assert.intent = A-pos, etc.)
+  A-pos:
+    description: The asserted element/pattern is present
+    rule:
+      within: main_list
+      match_pattern: price_amount
+      min_count: 1
+
+  A-neg:
+    description: The asserted pattern is absent
+    rule:
+      within: main_list
+      match_pattern: price_amount
+      max_count: 0

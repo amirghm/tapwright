@@ -1,0 +1,86 @@
+# tapwright.config.yml - describe your app once so /exec and /test can dig + drive it.
+# Copy this to your app repo root as `tapwright.config.yml` and edit.
+# Everything is optional: with no config, tapwright auto-detects globs and you pass
+# package/bundle ids inline. Filling this in makes runs faster and deterministic.
+
+# ── Where to code-dig ─────────────────────────────────────────────────────────
+app_source_dir: ./            # root to grep for strings + navigation
+
+# String-resource globs: where user-visible labels live. Presets by stack below  - 
+# keep the ones that match your app, delete the rest. Phase 0 greps these for the
+# exact CTA / screen-title text (and locale variants) to build the step plan.
+string_globs:
+  # Android XML resources
+  - "**/res/values*/strings.xml"
+  # Kotlin Multiplatform / Compose Resources
+  - "**/composeResources/values*/strings.xml"
+  # iOS
+  - "**/*.strings"
+  - "**/*.xcstrings"
+  # React Native / JS i18n
+  - "**/locales/**/*.json"
+  - "**/i18n/**/*.json"
+  # Flutter
+  - "**/l10n/*.arb"
+
+# Navigation globs: where screen order / routes are defined. Used when the next
+# screen after an action is unclear.
+nav_globs:
+  - "**/*Navigation*.kt"
+  - "**/*NavGraph*.kt"
+  - "**/*NavHost*.kt"
+  - "**/*Routes*.{kt,swift,ts,tsx,dart}"
+  - "**/*Coordinator*.swift"
+
+# Locales whose label variants the agent should grep for in the UI dump.
+# (Apps often mix an account UI in one language with app chrome in English.)
+locales: [en]
+
+# ── Android ───────────────────────────────────────────────────────────────────
+android:
+  package_id: com.example.app                 # applicationId of the build under test
+  launch: com.example.app/.MainActivity        # `adb shell am start -n` target
+  # Install command run from app_source_dir. Prefer reinstalling an existing debug
+  # APK when present; fall back to a Gradle task.
+  install: "./gradlew installDebug"
+  # apk: build/outputs/apk/debug/app-debug.apk # optional: adb install -r -t <apk>
+
+# ── iOS (macOS only) ────────────────────────────────────────────────────────────
+ios:
+  bundle_id: com.example.app
+  scheme: AppDebug
+  config: Debug
+  # Build command run from app_source_dir (or ios subdir). tapwright locates the
+  # resulting .app under DerivedData and `simctl install`s it.
+  build: >
+    xcodebuild -project MyApp.xcodeproj -scheme AppDebug -configuration Debug
+    -destination 'platform=iOS Simulator,name=iPhone 16'
+    -derivedDataPath ./build/DerivedData build
+  # resource_flavor_env: COMMON_MOBILE_RESOURCES_FLAVOR=myflavor  # optional scheme pre-action env
+
+# ── Accounts (optional) ─────────────────────────────────────────────────────────
+# For login flows. NEVER commit real passwords - reference an env var instead.
+accounts:
+  default:
+    email: qa@example.com
+    password_env: TAPWRIGHT_QA_PASSWORD   # exported in your shell; never written to files
+
+# ── Known flows (optional) ──────────────────────────────────────────────────────
+# Author fast paths once you've discovered them. Each is an ordered list of steps
+# the agent can follow directly (still verified against the live dump). This is how
+# you teach tapwright app-specific journeys (e.g. "cancel account", "reset onboarding").
+known_flows:
+  # login:
+  #   - screen: Welcome        # expected screen (title / gate text)
+  #     action: tap            # tap | type | scroll | key | confirm
+  #     needles: [Log in, Sign in]
+  #     success: Email         # text expected in the next dump
+  #   - action: type
+  #     field_needles: [Email]
+  #     value: "${accounts.default.email}"
+  #   - action: type
+  #     field_needles: [Password]
+  #     value: "${accounts.default.password}"
+  #   - action: key
+  #     key: enter
+  #     success: Home
