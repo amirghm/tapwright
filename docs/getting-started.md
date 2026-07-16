@@ -75,7 +75,7 @@ Compatibility alias: `/test <SPEC>`
 
 ## Tips
 
-- **Speed:** say "fast"/"headless" in `@mobile automate` to batch taps and shorten pauses.
+- **Speed:** say "fast"/"headless" in `@mobile` requests to batch taps and shorten pauses.
 - **Login without leaking secrets:** put the password in an env var and reference it via
   `accounts.default.password_env` in the config.
 - **Teach a recurring journey:** add it under `known_flows` so the agent skips re-deriving it.

@@ -1,6 +1,6 @@
 # `@mobile`
 
-`@mobile` is the main tapwright entrypoint.
+`@mobile` is the main tapwright experience.
 
 Use it when you want a coding agent to look at a mobile app, interact with it,
 debug it, or turn a repeated flow into a test. V1 is just Markdown instructions,
@@ -73,7 +73,12 @@ The rule of thumb is simple:
 
 ## Compatibility
 
-Some agents support literal `@mobile` mentions. Others use slash commands,
-skills, rules, or repo instructions. The installer adds plain Markdown plus a few
-agent-specific files where it can, so the same idea works across Codex, Claude
-Code, Cursor, OpenCode, Copilot, and similar tools.
+Use `@mobile` in normal chat. If your coding tool does not recognize it, use
+`/mobile` instead. Both route to the same workflow.
+
+The helper skill is named `mobile-engine` so command pickers do not show two
+different `mobile` entries.
+
+The installer adds plain Markdown plus a few agent-specific files where it can,
+so the same idea works across Codex, Claude Code, Cursor, OpenCode, Copilot, and
+similar tools.

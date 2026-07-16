@@ -1,13 +1,14 @@
 ---
-description: Primary @mobile workflow for inspecting, automating, manually testing, debugging, recording, replaying, comparing, and running E2E flows on Android/iOS.
+description: Mobile workflow for inspecting, automating, manually testing, debugging, recording, replaying, comparing, and running E2E flows on Android/iOS.
 ---
 
-# `@mobile` : Browser-Like Mobile Agent Control
+# `@mobile`
 
-**Goal:** Give the user one mobile entrypoint that behaves like `@browser`, but
-for Android emulators/devices and iOS Simulators.
+**Goal:** Give the user one visible mobile command. This workflow handles mobile
+inspection, automation, manual UI checks, debugging, recording, replay, compare,
+and E2E runs.
 
-**Read first:** the `mobile` skill. It routes to:
+**Read first:** the `mobile-engine` skill. It routes to:
 
 | Need | Skill / workflow |
 |---|---|
@@ -19,8 +20,8 @@ for Android emulators/devices and iOS Simulators.
 ## Usage
 
 ```text
-@mobile inspect
-@mobile automate log in and open the account screen
+@mobile what screen is my app showing?
+@mobile log in and open the account screen
 @mobile manual test checkout on android
 @mobile test CHECKOUT --ios --headless
 @mobile debug app launch
@@ -29,13 +30,8 @@ for Android emulators/devices and iOS Simulators.
 @mobile compare current screen with <reference>
 ```
 
-If the host agent does not support literal `@mobile` mentions, use the same text
-as a slash command or plain request:
-
-```text
-/mobile inspect
-Use tapwright @mobile to inspect this app
-```
+If the coding tool does not support `@mobile`, use `/mobile` instead. Both forms
+run this workflow.
 
 ## Mode Selection
 
@@ -74,7 +70,7 @@ Default platform: Android. Use iOS when the user says iOS/simulator or passes
 
 ```mermaid
 flowchart TD
-    A["@mobile request"] --> B[Read mobile skill]
+    A["@mobile request"] --> B[Read mobile-engine skill]
     B --> C{Mode?}
     C -->|inspect/debug/manual| D[Device skill]
     C -->|automate| E[exec-engine]

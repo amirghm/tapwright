@@ -1,15 +1,15 @@
 ---
-name: mobile
+name: mobile-engine
 description: |
-  Primary tapwright mobile agent entrypoint. Use this skill whenever the user
-  mentions @mobile or asks an agent to inspect, automate, manually test, debug,
-  record, replay, compare, or run E2E flows on an Android emulator/device or
-  iOS Simulator. This skill routes to the existing exec-engine, test-engine,
-  device-interaction, and device-interaction-ios skills; it is not a separate
-  runtime, daemon, SDK, or MCP server.
+  Routing engine for the tapwright @mobile workflow. Use this skill whenever the
+  user runs @mobile or /mobile, or asks an agent to inspect, automate, manually
+  test, debug, record, replay, compare, or run E2E flows on an Android
+  emulator/device or iOS Simulator. This skill routes to the existing
+  exec-engine, test-engine, device-interaction, and device-interaction-ios
+  skills; it is not a separate runtime, daemon, SDK, or MCP server.
 ---
 
-# @mobile
+# mobile-engine
 
 `@mobile` is the main tapwright entrypoint for mobile work. Use it to inspect a
 real app screen, act on it, verify the result, and save evidence when useful.
@@ -23,11 +23,13 @@ It is a **router skill**. Do not duplicate platform recipes here:
 
 ## User mental model
 
-`@mobile` should feel like `@browser`, but for mobile apps:
+`@mobile` is the primary experience. If the coding tool does not recognize it,
+the user can type `/mobile` instead. `mobile-engine` is only the helper skill
+behind both forms, so command pickers do not show two different `mobile` entries.
 
 ```text
 @mobile inspect
-@mobile automate log in as qa@example.com and open Settings
+@mobile log in as qa@example.com and open Settings
 @mobile manual test the checkout screen
 @mobile test CHECKOUT --ios --headless
 @mobile debug why the app is stuck on launch

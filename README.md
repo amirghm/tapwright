@@ -37,6 +37,8 @@ available, and tells you what it can run.
 @mobile debug why login is stuck
 ```
 
+If your coding tool does not support `@mobile`, use `/mobile` instead.
+
 ## Use Cases
 
 | You want to know | Ask |

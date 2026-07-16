@@ -8,7 +8,7 @@ check what is available, and report only the result or the blocker.
 
 tapwright adds a small set of repo-local files:
 
-- `@mobile`
+- `@mobile`, with `/mobile` as a fallback
 - compatibility workflows for `/exec` and `/test`
 - Android `adb` helpers
 - iOS `simctl` / `idb` helpers
@@ -80,7 +80,7 @@ If the repo already exists locally, use that checkout instead of cloning.
 
 ## After install
 
-Use `@mobile`:
+Use `@mobile`. If the coding tool does not support it, use `/mobile` instead:
 
 ```text
 @mobile what screen is my app showing?

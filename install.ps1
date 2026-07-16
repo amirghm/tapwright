@@ -26,10 +26,17 @@ if ([string]::IsNullOrWhiteSpace($AgentDir)) {
 
 Write-Host "tapwright: installing into $Dest/$AgentDir"
 
-$dirs = @("workflows", "skills", "scripts", "templates")
+$dirs = @("workflows", "scripts", "templates")
 foreach ($dir in $dirs) {
   New-Item -ItemType Directory -Force -Path (Join-Path $AgentDir $dir) | Out-Null
   Copy-Item -Path (Join-Path $Pack "$dir/*") -Destination (Join-Path $AgentDir $dir) -Recurse -Force
+}
+
+New-Item -ItemType Directory -Force -Path (Join-Path $AgentDir "skills") | Out-Null
+Get-ChildItem -Path (Join-Path $Pack "skills") -Directory | Where-Object {
+  Test-Path (Join-Path $_.FullName "SKILL.md")
+} | ForEach-Object {
+  Copy-Item -Path $_.FullName -Destination (Join-Path $AgentDir "skills") -Recurse -Force
 }
 
 Get-ChildItem -Path (Join-Path $AgentDir "workflows"), (Join-Path $AgentDir "skills") -Recurse -Filter "*.md" | ForEach-Object {
@@ -75,12 +82,13 @@ function Append-AgentsBlock {
   Add-Content -Path $file -Value @"
 <!-- tapwright:mobile begin -->
 
-## tapwright @mobile
+## tapwright mobile
 
-Use tapwright when the user asks for `@mobile`, mobile app inspection, mobile automation, manual UI testing, mobile debugging, E2E execution, recording, replay, or screenshot/design comparison.
+Use tapwright when the user runs `@mobile` or `/mobile`, or asks for mobile app inspection, mobile automation, manual UI testing, mobile debugging, E2E execution, recording, replay, or screenshot/design comparison.
 
-- Primary entrypoint: `@mobile`.
-- Read `$AgentDir/skills/mobile/SKILL.md` before acting.
+- Primary experience: `@mobile`.
+- If the coding tool does not support `@mobile`, use `/mobile` instead.
+- Read `$AgentDir/skills/mobile-engine/SKILL.md` before acting.
 - Route ad-hoc automation through `$AgentDir/skills/exec-engine/SKILL.md`.
 - Route E2E specs through `$AgentDir/skills/test-engine/SKILL.md` and `$AgentDir/workflows/test.md`.
 - Use Android/iOS device recipes from `$AgentDir/skills/device-interaction*/SKILL.md`.
@@ -99,12 +107,12 @@ function Install-AgentAdapters {
   if (($AgentDir -eq ".claude") -or (Test-Path ".claude")) {
     Write-FileIfMissingOrTapwrightOwned ".claude/commands/mobile.md" "tapwright:generated" @"
 ---
-description: tapwright @mobile for Android/iOS inspection, automation, manual testing, debugging, recording, replay, compare, and E2E.
+description: tapwright mobile for Android/iOS inspection, automation, manual testing, debugging, recording, replay, compare, and E2E.
 ---
 
 <!-- tapwright:generated -->
 
-Read `$AgentDir/skills/mobile/SKILL.md` and follow `$AgentDir/workflows/mobile.md`. Treat the rest of the prompt as the @mobile request.
+Read `$AgentDir/skills/mobile-engine/SKILL.md` and follow `$AgentDir/workflows/mobile.md`. Treat the rest of the prompt as an @mobile request.
 "@
   }
 
@@ -117,19 +125,19 @@ alwaysApply: false
 
 <!-- tapwright:generated -->
 
-When the user mentions @mobile or asks to control/test a mobile app, read `$AgentDir/skills/mobile/SKILL.md` and follow `$AgentDir/workflows/mobile.md`. Prefer emulators/simulators and ask before touching physical devices.
+When the user runs @mobile or /mobile, or asks to control/test a mobile app, read `$AgentDir/skills/mobile-engine/SKILL.md` and follow `$AgentDir/workflows/mobile.md`. Prefer emulators/simulators and ask before touching physical devices.
 "@
   }
 
   if (Test-Path ".opencode") {
     Write-FileIfMissingOrTapwrightOwned ".opencode/agents/mobile.md" "tapwright:generated" @"
 ---
-description: tapwright @mobile agent for Android/iOS app inspection, automation, manual testing, debugging, recording, replay, compare, and E2E.
+description: tapwright mobile agent for Android/iOS app inspection, automation, manual testing, debugging, recording, replay, compare, and E2E.
 ---
 
 <!-- tapwright:generated -->
 
-You are @mobile. Read `$AgentDir/skills/mobile/SKILL.md`, then use the tapwright workflows and device skills installed under `$AgentDir`. Prefer emulators/simulators; ask before touching physical devices.
+You are the tapwright mobile agent. Read `$AgentDir/skills/mobile-engine/SKILL.md`, then use the tapwright workflows and device skills installed under `$AgentDir`. Prefer emulators/simulators; ask before touching physical devices.
 "@
   }
 
@@ -138,9 +146,9 @@ You are @mobile. Read `$AgentDir/skills/mobile/SKILL.md`, then use the tapwright
     Add-Content -Path ".github/copilot-instructions.md" -Value @"
 <!-- tapwright:mobile begin -->
 
-## tapwright @mobile
+## tapwright mobile
 
-For mobile app inspection, automation, debugging, manual UI testing, record/replay, compare, or E2E requests, use the tapwright pack installed under `$AgentDir`. Read `$AgentDir/skills/mobile/SKILL.md` first. Prefer emulators/simulators and ask before interacting with physical devices.
+For `@mobile`, `/mobile`, mobile app inspection, automation, debugging, manual UI testing, record/replay, compare, or E2E requests, use the tapwright pack installed under `$AgentDir`. Read `$AgentDir/skills/mobile-engine/SKILL.md` first. Prefer emulators/simulators and ask before interacting with physical devices.
 
 <!-- tapwright:mobile end -->
 "@
@@ -159,3 +167,4 @@ Install-AgentAdapters
 Write-Host ""
 Write-Host "Done. Installed tapwright into $AgentDir."
 Write-Host "Next request to try: @mobile what screen is my app showing?"
+Write-Host "If @mobile is not supported, use /mobile instead."
