@@ -26,12 +26,6 @@ Install tapwright here: https://raw.githubusercontent.com/amirghm/tapwright/main
 That is it. The agent reads the page, installs the repo files, checks what mobile tools are
 available, and tells you what it can run.
 
-Already installed? Send this to your agent:
-
-```text
-Update tapwright here: https://raw.githubusercontent.com/amirghm/tapwright/main/docs/update-agent.md
-```
-
 ## What You Can Ask
 
 ```text
@@ -128,7 +122,6 @@ uses screenshots only when they help.
 ## Docs
 
 - [Agent install page](docs/install-agent.md)
-- [Agent update page](docs/update-agent.md)
 - [`@mobile` examples and modes](docs/mobile.md)
 - [App Memory and App Maps](docs/memory.md)
 - [Getting started](docs/getting-started.md)
