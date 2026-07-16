@@ -1,8 +1,10 @@
 # Writing a step plan
 
-The step plan is tapwright's core idea: **before touching the device**, dig the app's own
-source to produce a deterministic, numbered plan of what to tap and how to know it worked.
-This is what makes runs fast and reproducible instead of a vision-guessing loop.
+The step plan is tapwright's core idea: **before touching the device**, use the
+App Map to produce a deterministic, numbered plan of what to tap and how to know
+it worked. When the map has a gap, use source code if available or learn from the
+live UI. This is what makes runs fast and reproducible instead of a
+vision-guessing loop.
 
 The agent builds this automatically during Phase 0 of `/exec` and `/test`. This doc explains
 the shape so you can (a) understand what it's doing and (b) author `known_flows` yourself.
@@ -15,7 +17,7 @@ Each step answers four questions:
 |---|---|---|
 | **Screen** | Where should I be right now? | screen title / a gate string |
 | **Action** | What do I do? | `tap` / `type` / `scroll` / `key` / `confirm` |
-| **Needles** | What text identifies the target? | grep of `string_globs` (all `locales`) |
+| **Needles** | What text identifies the target? | App Map; source/live UI for gaps |
 | **Success** | How do I know it worked? | text expected in the next dump |
 
 ## How the agent derives it

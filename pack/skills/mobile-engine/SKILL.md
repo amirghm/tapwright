@@ -66,6 +66,8 @@ least surprising mode and say which one you chose in the brief.
 ## App Memory
 
 Every task must use the app-specific App Map before planning or touching the UI.
+Every task that receives stable app knowledge must update it, even when no device
+actions run.
 
 1. Resolve the platform and app ID from `tapwright.config.yml`, the request, or
    the selected app (`android.package_id` / `ios.bundle_id`). Never create memory
@@ -96,6 +98,15 @@ $env:TAPWRIGHT_MEMORY = & "pack/scripts/memory-path.ps1" -Platform <platform> -A
 7. Read the installed app version when available. After the task, merge verified
    screens, stable targets, transitions, gates, app versions, timestamps, hits,
    misses, and confidence into the same map.
+8. When new tests, scenarios, config, source findings, or other route data arrive
+   without live verification, merge them into `candidates` with `status:
+   unverified`, a source/ref, and timestamp. Never place declared-only data in
+   verified nodes or edges.
+9. Promote a candidate only after live destination markers confirm it. Mark
+   contradicted or blocked candidates instead of silently dropping the result.
+
+Older maps may not have a `candidates` key. Treat it as an empty list and add it
+during the next update without replacing existing nodes, edges, or gates.
 
 The App Map lives at
 `.tapwright-memory/<platform>/<package-or-bundle-id>/app-map.yaml`. Never store

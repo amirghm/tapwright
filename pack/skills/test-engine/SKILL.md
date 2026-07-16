@@ -30,6 +30,12 @@ markers match the current UI. After execution, merge verified nodes, edges, gate
 hits, misses, confidence, and timestamps. Do not store coordinates, secrets,
 personal data, or dynamic content.
 
+Creating or editing a test plan is itself an App Memory update. Before any run,
+merge its new scenario intents, expected routes, markers, and gates into
+`candidates` as `unverified`, with the test-plan reference and timestamp. For a
+cross-platform plan, update each configured app ID separately. Do not promote
+candidate edges until a live run verifies their destination markers.
+
 ```bash
 export TAPWRIGHT_MEMORY="$(pack/scripts/memory-path.sh <platform> <app-id>)"
 ```
@@ -182,6 +188,10 @@ that worked. Increase misses and reduce confidence for remembered paths that did
 not match the current app. Add newly observed gates, app versions, and timestamps
 even when a scenario was blocked. Never copy coordinates, raw dumps, screenshots,
 credentials, or dynamic test data into memory.
+
+When a run verifies an unverified test candidate, promote it to nodes/edges and
+remove the candidate. When it fails or is blocked, update the candidate status
+and stable reason so the next run does not repeat the same assumption.
 
 ## Improving test plans
 

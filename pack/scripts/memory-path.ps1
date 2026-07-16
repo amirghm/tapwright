@@ -30,6 +30,7 @@ updated_at: $now
 nodes: {}
 edges: []
 gates: []
+candidates: []
 "@ | Set-Content -Path $graph -NoNewline
 }
 

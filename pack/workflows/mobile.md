@@ -72,6 +72,8 @@ Default platform: Android. Use iOS when the user says iOS/simulator or passes
   provisional DSL created for that request.
 - Simple automation can be chat-only.
 - App Memory is persistent and separate from timestamped run evidence.
+- New test/config/source data updates unverified map candidates immediately;
+  live verification promotes those candidates into trusted routes.
 
 ## Flow
 

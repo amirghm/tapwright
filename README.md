@@ -58,6 +58,9 @@ Every request teaches tapwright a little more about your app. It builds an App
 Map for each package or bundle ID, remembering verified screens, controls,
 routes, and gates.
 
+New tests and app discoveries update the map immediately. Planned routes stay
+marked as candidates until the live app verifies them.
+
 The next agent can start from that map instead of exploring the same screens
 again. That makes automation and E2E runs more accurate, faster, and lighter on
 tokens. Remembered paths are always checked against the live app before use.

@@ -69,6 +69,10 @@ A complete matching route skips source inspection. If the map has gaps,
 tapwright checks source when it is available or learns the missing path from the
 live UI when it is not. A repo is helpful, not required.
 
+New or edited tests and other stable app data are saved as unverified candidates
+immediately. A live run promotes them into trusted routes or records why they
+failed.
+
 See [memory.md](memory.md) for the map structure and safety rules.
 
 ## Platforms

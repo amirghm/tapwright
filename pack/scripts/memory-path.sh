@@ -38,6 +38,7 @@ updated_at: $now
 nodes: {}
 edges: []
 gates: []
+candidates: []
 EOF
 fi
 

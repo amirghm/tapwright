@@ -8,6 +8,10 @@ description: Execute a spec's test-plan.md on an Android emulator or iOS simulat
 
 **Read first:** the `test-engine` skill (App Map + targeted verification + brief), the platform device skill below, and `pack/templates/e2e.md` (output layout + run folders).
 
+Before execution, merge new or edited test scenarios into the per-app App Map as
+unverified candidates. After execution, promote verified candidates or record
+their failed/blocked status.
+
 | Platform | Device skill |
 |---|---|
 | Android (default) | `device-interaction` |

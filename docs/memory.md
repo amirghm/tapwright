@@ -33,7 +33,9 @@ tokens, personal data, or dynamic account content.
    conflicting parts of the route, and only when source code is available.
 6. Validate every remembered screen and target against the live UI.
 7. Merge newly verified nodes, edges, and gates after the task.
-8. Record failed remembered paths so confidence can fall instead of repeating a
+8. Ingest new test plans, edited scenarios, config/source discoveries, and other
+   stable route data immediately as unverified candidates.
+9. Record failed remembered paths so confidence can fall instead of repeating a
    bad route.
 
 Memory guides execution but never overrides the live accessibility tree or UI
@@ -78,6 +80,14 @@ gates:
     signal: Sign in
     effect: login_required
     last_seen: 2026-07-16T10:02:00Z
+candidates:
+  - id: guest_checkout
+    source: test_plan
+    ref: specs/checkout/test-plan.md#E-2
+    intent: complete checkout as a guest
+    expected_path: [cart, checkout, confirmation]
+    status: unverified
+    received_at: 2026-07-16T10:04:00Z
 ```
 
 Keep node IDs short and stable. Prefer labels, roles, resource IDs, accessibility
@@ -96,6 +106,26 @@ IDs, and semantic test IDs. Do not remember screen coordinates.
 - Keep the map compact. Merge duplicate labels and IDs, and remove volatile text.
 - For a large map, search task keywords and load only the connected subgraph
   needed for the current request.
+
+## New tests and incoming data
+
+Update the App Map whenever useful app knowledge arrives, even if no mobile run
+happens in that task:
+
+- a test plan or scenario is created or edited
+- `known_flows`, package metadata, strings, navigation, or gates change
+- an inspect, manual, debug, record, replay, automation, or E2E task observes a
+  new screen or result
+- a remembered route passes, fails, or becomes blocked
+
+Test plans, source findings, and configuration are declared knowledge. Add them
+to `candidates` with their source, reference, received time, and `unverified`
+status. Do not add them to verified `nodes` or `edges` yet.
+
+Live UI observations are evidence. After the destination markers are confirmed,
+promote the candidate into nodes/edges, increment hits, and remove the candidate.
+If the live app contradicts it, keep it as `blocked` or `contradicted` with a
+short stable reason. Never copy dynamic values or raw evidence into the map.
 
 ## Sharing
 

@@ -6,6 +6,9 @@ A `/test` run reads the **E2E Tests** section below and executes each scenario o
 Keep scenarios concrete: name the exact UI strings, the account state, and the negative gate
 (what the agent should see if a precondition is not met, so it stops instead of guessing).
 
+Creating or editing a scenario updates the matching App Map as an unverified
+candidate. A live run promotes it only after destination markers are verified.
+
 ## Test Accounts
 
 | Account | State / precondition | Purpose |

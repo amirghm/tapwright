@@ -26,7 +26,8 @@ Orchestrates `/exec`: **App Map → targeted dig if needed → fast execute → 
 `.tapwright-memory/<platform>/<package-or-bundle-id>/app-map.yaml` before source
 digging. Prefer a remembered route when its markers match the live UI. After the
 task, merge verified screens, transitions, gates, hits, misses, confidence, and
-timestamps. Never store coordinates, secrets, personal data, or dynamic content.
+timestamps. Put source/config discoveries in `candidates` until the live UI
+verifies them. Never store coordinates, secrets, personal data, or dynamic content.
 
 ```bash
 export TAPWRIGHT_MEMORY="$(pack/scripts/memory-path.sh <platform> <app-id>)"
