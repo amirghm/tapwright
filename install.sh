@@ -45,17 +45,6 @@ fi
 echo "tapwright: installing into $DEST/$AGENT_DIR"
 mkdir -p "$AGENT_DIR/workflows" "$AGENT_DIR/skills" "$AGENT_DIR/scripts" "$AGENT_DIR/templates"
 
-# Remove the retired tapwright mobile workflow/helper skill from older installs.
-legacy_workflow="$AGENT_DIR/workflows/mobile.md"
-if [[ -f "$legacy_workflow" ]] && grep -q 'mobile-engine' "$legacy_workflow"; then
-  rm -f "$legacy_workflow"
-fi
-legacy_skill="$AGENT_DIR/skills/mobile-engine/SKILL.md"
-if [[ -f "$legacy_skill" ]] && grep -q '^name: mobile-engine$' "$legacy_skill"; then
-  rm -f "$legacy_skill"
-  rmdir "$AGENT_DIR/skills/mobile-engine" 2>/dev/null || true
-fi
-
 cp -R "$PACK/workflows/." "$AGENT_DIR/workflows/"
 for skill_dir in "$PACK/skills"/*; do
   [[ -d "$skill_dir" && -f "$skill_dir/SKILL.md" ]] || continue

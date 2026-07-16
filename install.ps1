@@ -26,16 +26,6 @@ if ([string]::IsNullOrWhiteSpace($AgentDir)) {
 
 Write-Host "tapwright: installing into $Dest/$AgentDir"
 
-# Remove the retired tapwright mobile workflow/helper skill from older installs.
-$legacyWorkflow = Join-Path $AgentDir "workflows/mobile.md"
-if ((Test-Path $legacyWorkflow) -and ((Get-Content $legacyWorkflow -Raw) -match "mobile-engine")) {
-  Remove-Item $legacyWorkflow -Force
-}
-$legacySkill = Join-Path $AgentDir "skills/mobile-engine/SKILL.md"
-if ((Test-Path $legacySkill) -and ((Get-Content $legacySkill -Raw) -match "(?m)^name: mobile-engine$")) {
-  Remove-Item (Split-Path -Parent $legacySkill) -Recurse -Force
-}
-
 $dirs = @("workflows", "scripts", "templates")
 foreach ($dir in $dirs) {
   New-Item -ItemType Directory -Force -Path (Join-Path $AgentDir $dir) | Out-Null
