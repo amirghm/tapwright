@@ -50,6 +50,22 @@ available, and tells you what it can run.
 | Turn a repeated flow into a test | `@mobile record the onboarding flow` |
 | Run a saved E2E plan | `@mobile test CHECKOUT` |
 
+## For Development And E2E
+
+When you are building a feature, `@mobile` can act like the mobile check at the end of the task.
+
+```text
+@mobile test the login changes I just made
+@mobile run the checkout plan on Android
+@mobile run the checkout plan on iOS, visible, so I can watch
+@mobile run CHECKOUT on both Android and iOS
+@mobile run only E-2 from the checkout plan
+@mobile record this reset-password flow as a test plan
+```
+
+For planned test runs, keep a `specs/<NAME>/test-plan.md`. tapwright writes the run output under
+`specs/<NAME>/runs/` with a readable report, screenshots when useful, and replayable steps.
+
 ## What It Feels Like
 
 You ask for the outcome. Your agent does the mobile work.
@@ -87,6 +103,7 @@ Then it taps real elements and uses screenshots only when they help.
 - [Getting started](docs/getting-started.md)
 - [Config reference](docs/config-reference.md)
 - [Supported stacks](docs/supported-stacks.md)
+- [Writing a test plan](docs/writing-a-step-plan.md)
 
 ## License
 

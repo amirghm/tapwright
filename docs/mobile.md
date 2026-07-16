@@ -19,6 +19,20 @@ templates, and shell helpers. It is not a runtime, SDK, daemon, or hosted servic
 @mobile compare this screen with the design
 ```
 
+## Development examples
+
+```text
+@mobile test the profile changes I just made
+@mobile run the checkout plan on Android
+@mobile run the checkout plan on iOS, visible, so I can watch
+@mobile run CHECKOUT on both Android and iOS
+@mobile run only E-2 from the checkout plan
+@mobile record this reset-password flow as a test plan
+```
+
+For planned test runs, use `specs/<NAME>/test-plan.md`. The agent writes each run under
+`specs/<NAME>/runs/` with a report, useful screenshots, and replayable steps.
+
 ## Modes
 
 You can still use explicit modes when you want them:
