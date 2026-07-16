@@ -3,7 +3,7 @@ set -euo pipefail
 
 mode="${1:-run}"
 case "$mode" in
-  inspect|automate|manual|debug|record|replay|compare|run) ;;
+  build|inspect|automate|manual|debug|record|replay|compare|run) ;;
   *) mode="run" ;;
 esac
 

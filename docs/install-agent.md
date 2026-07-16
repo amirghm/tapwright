@@ -19,6 +19,9 @@ tapwright adds a small set of repo-local files:
 
 It does not install a daemon, SDK, model, or cloud service.
 
+For an existing installation, follow [update-agent.md](update-agent.md) so the
+agent fetches a fresh copy before rerunning the installer.
+
 ## Install steps for the agent
 
 1. Use the user's mobile app repo when available. If there is no repo, use the

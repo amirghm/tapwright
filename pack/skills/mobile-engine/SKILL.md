@@ -2,8 +2,9 @@
 name: mobile-engine
 description: |
   Routing engine for the tapwright @mobile workflow. Use this skill whenever the
-  user runs @mobile or /mobile, or asks an agent to inspect, automate, manually
-  test, debug, record, replay, compare, or run E2E flows on an Android
+  user runs @mobile or /mobile, references mobile.md as an execution workflow,
+  or asks an agent to build, change, inspect, automate, manually test, debug,
+  record, replay, compare, or run E2E flows on an Android
   emulator/device or iOS Simulator. This skill routes to the existing
   exec-engine, test-engine, device-interaction, and device-interaction-ios
   skills; it is not a separate runtime, daemon, SDK, or MCP server.
@@ -27,8 +28,32 @@ It is a **router skill**. Do not duplicate platform recipes here:
 the user can type `/mobile` instead. `mobile-engine` is only the helper skill
 behind both forms, so command pickers do not show two different `mobile` entries.
 
+## Execution contract
+
+`@mobile`, `/mobile`, and explicit requests to use `mobile.md` are action
+requests. Perform the work in the current workspace. Do not answer with a prompt
+for another agent, a rewritten version of the request, or a plan without
+execution.
+
+When the user asks to create, build, implement, redesign, fix, or change the app:
+
+1. Inspect the current workspace and existing app architecture.
+2. Implement the requested code and assets using the repo's conventions.
+3. Build/install and launch the app.
+4. Use the relevant device skill to inspect and exercise the changed UI.
+5. Fix issues found during verification and repeat until the requested result is
+   working or a real blocker remains.
+6. Report the completed work and verification, not a prompt the user must send
+   elsewhere.
+
+Only generate a reusable prompt when the user explicitly says `prompt-only` or
+`do not implement`. When an executable build request and prompt wording appear
+together, execution wins.
+
 ```text
 @mobile inspect
+@mobile build a daily planner in this app and test its main flow
+@mobile fix the checkout screen and verify it on Android
 @mobile log in as qa@example.com and open Settings
 @mobile manual test the checkout screen
 @mobile test CHECKOUT --ios --headless
@@ -45,6 +70,7 @@ least surprising mode and say which one you chose in the brief.
 
 | Mode | Triggers | Output |
 |---|---|---|
+| `build` | create, build, implement, redesign, fix, change, add | Code changes + launched app + mobile verification |
 | `inspect` | inspect, current screen, what do you see, screenshot, dump | Chat summary; optional timestamped evidence |
 | `automate` | automate, do, complete, open, log in, navigate, toggle | Same behavior as `/exec`; chat summary by default |
 | `manual` | manual test, guide me, step by step, watch it | One action/checkpoint at a time; chat summary |
@@ -149,6 +175,21 @@ $env:TAPWRIGHT_RUN_DIR = & "pack/scripts/new-run-dir.ps1" -Mode <mode>
 If a folder already exists for the same second, the helper adds `-2`, `-3`, and
 so on. Do not create a new folder for every action or screenshot in the same
 request.
+
+### build
+
+Use the coding agent's normal repository tools to implement the request first.
+The mobile skills are the verification loop, not a substitute for editing code.
+
+1. Read the existing app structure and choose its established implementation
+   patterns. If the folder has no app source, ask one blocking question about
+   where or which stack to create; do not invent a throwaway stack silently.
+2. Implement a usable end-to-end result, not a mock prompt or static description.
+3. Run the repo's focused build/tests.
+4. Install and launch on the requested emulator/Simulator.
+5. Inspect the live UI, exercise the main requested flow, and fix regressions.
+6. Update App Memory only with live-verified screens and routes; keep unverified
+   planned flows as candidates.
 
 ### inspect
 

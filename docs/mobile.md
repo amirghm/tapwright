@@ -2,13 +2,21 @@
 
 `@mobile` is the main tapwright experience.
 
-Use it when you want a coding agent to look at a mobile app, interact with it,
-debug it, or turn a repeated flow into a test. V1 is just Markdown instructions,
-templates, and shell helpers. It is not a runtime, SDK, daemon, or hosted service.
+Use it when you want a coding agent to build or change a mobile app, interact
+with it, debug it, or turn a repeated flow into a test. V1 is just Markdown
+instructions, templates, and shell helpers. It is not a runtime, SDK, daemon, or
+hosted service.
+
+`@mobile` is executable. The agent should perform the work in the current
+workspace and verify it on mobile, not return a prompt for another agent. Prompt
+generation happens only when you explicitly ask for `prompt-only` or say `do not
+implement`.
 
 ## Examples
 
 ```text
+@mobile build a daily planner and verify its main flow
+@mobile fix the checkout screen and test it on Android
 @mobile what screen is my app showing?
 @mobile log in with the QA account and find billing
 @mobile check if a new user can skip onboarding
@@ -39,6 +47,7 @@ You can still use explicit modes when you want them:
 
 | Mode | Use it for |
 |---|---|
+| `build` | Implement app changes, build/launch, verify on device, and iterate |
 | `inspect` | Check the current device, app, screen, UI tree, and optional screenshot |
 | `automate` | Complete a natural-language goal |
 | `manual` | Work through a UI check one action at a time |
@@ -52,11 +61,13 @@ You can still use explicit modes when you want them:
 
 The rule of thumb is simple:
 
-1. Read app strings and navigation when planning a goal.
-2. Dump the live UI tree.
-3. Tap, type, and swipe from real element bounds.
-4. Use screenshots for evidence or fallback.
-5. Stop when the app is gated or in the wrong state.
+1. Execute the request; for build/change work, edit the app first.
+2. Read the App Map and use a complete matching route directly.
+3. Check source only for gaps when source exists.
+4. Dump the live UI tree and validate every action.
+5. Tap, type, and swipe from real element bounds.
+6. Use screenshots for evidence or fallback.
+7. Fix issues and repeat, or stop on a real gate.
 
 ## App Memory
 

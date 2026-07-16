@@ -1,12 +1,20 @@
 ---
-description: Mobile workflow for inspecting, automating, manually testing, debugging, recording, replaying, comparing, and running E2E flows on Android/iOS.
+description: Mobile workflow for building/changing apps, inspecting, automating, manually testing, debugging, recording, replaying, comparing, and running E2E flows on Android/iOS.
 ---
 
 # `@mobile`
 
-**Goal:** Give the user one visible mobile command. This workflow handles mobile
-inspection, automation, manual UI checks, debugging, recording, replay, compare,
-and E2E runs.
+**Goal:** Give the user one visible mobile command. This workflow handles app
+building/changes, mobile inspection, automation, manual UI checks, debugging,
+recording, replay, compare, and E2E runs.
+
+## Execute, do not rewrite
+
+Invoking `@mobile`, `/mobile`, or explicitly asking to use this `mobile.md` file
+means perform the request now. Never return a large prompt for another agent or
+stop after a plan. For create/build/fix/change requests, edit the app, build it,
+launch it, verify it on mobile, and iterate. Generate prompt text only when the
+user explicitly says `prompt-only` or `do not implement`.
 
 **Read first:** the `mobile-engine` skill. It routes to:
 
@@ -16,6 +24,7 @@ and E2E runs.
 | iOS Simulator control | `device-interaction-ios` |
 | Ad-hoc automation | `exec-engine` / `/exec` behavior |
 | E2E execution | `test-engine` / `/test` behavior |
+| Build/change app | Host coding tools, then platform device skill |
 
 Every route reads and updates the App Map under
 `.tapwright-memory/<platform>/<package-or-bundle-id>/app-map.yaml`.
@@ -24,6 +33,8 @@ Every route reads and updates the App Map under
 
 ```text
 @mobile what screen is my app showing?
+@mobile build a daily planner and verify its main flow
+@mobile fix the checkout UI and test it on Android
 @mobile log in and open the account screen
 @mobile manual test checkout on android
 @mobile test CHECKOUT --ios --headless
@@ -42,6 +53,7 @@ Infer the mode from the request:
 
 | Mode | Route |
 |---|---|
+| `build` | Implement code, build/launch, then verify and iterate on device |
 | `inspect` | Dump current UI, optional screenshot, summarize state |
 | `automate` | Execute natural-language goal with `/exec` semantics |
 | `manual` | Guided one-step UI testing |
@@ -81,11 +93,14 @@ Default platform: Android. Use iOS when the user says iOS/simulator or passes
 flowchart TD
     A["@mobile request"] --> B[Read mobile-engine skill]
     B --> C{Mode?}
+    C -->|build/fix/change| K[Edit code + build]
+    K --> L[Launch + device verification]
     C -->|inspect/debug/manual| D[Device skill]
     C -->|automate| E[exec-engine]
     C -->|test| F[test-engine]
     C -->|record/replay| G[DSL + device skill]
     C -->|compare| H[Screenshot + reference review]
+    L --> I
     D --> I[Summary / optional scratch artifacts]
     E --> I
     F --> J[Report + DSL]
